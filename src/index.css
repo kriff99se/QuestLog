@@ -1,0 +1,3 @@
+/* Henter hele Tailwind ind. Herefter kan vi style med Tailwind-klasser
+   direkte i className, fx "text-4xl font-bold". */
+@import "tailwindcss";
