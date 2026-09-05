@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
 import { useLocalStorage } from "./useLocalStorage";
 import { STANDARD_VANER } from "./vaner";
 import type { Afkrydsninger, Indstillinger, Todo } from "./types";
@@ -13,6 +13,7 @@ import { samletStreak, vaneStreak, erGroenDag } from "./streaks";
 import { StreakBanner } from "./StreakBanner";
 import { DatoHjaelper } from "./DatoHjaelper";
 import { TodoListe } from "./TodoListe";
+import { Fejring } from "./Fejring";
 
 export default function App() {
   // Vanerne. Første gang appen åbnes, bruges standardlisten med de 10 vaner.
@@ -83,6 +84,68 @@ export default function App() {
   // Den samlede dags-streak (grønne dage i træk), regnet fra den valgte dag.
   const streak = samletStreak(vaner, afkrydsninger, dato, taerskel);
 
+  // --- Animationer (Fase 6) ---
+  //
+  // Vi vil gerne vise et lille "+X", når pointtallet stiger, og en kort
+  // fejring, når man går et level op. For at opdage det, husker vi det
+  // forrige tal og sammenligner efter hver ændring.
+  //
+  // useRef er en "kasse", der overlever gentegninger uden selv at udløse
+  // en ny gentegning - god til at huske "hvad var værdien sidst".
+  const forrigePoint = useRef(samledePoint);
+  const forrigeLevel = useRef(levelInfo.level);
+
+  // Det "+X" der lige nu svæver op (eller null hvis der ikke er noget).
+  // id'et skifter hver gang, så animationen kan starte forfra.
+  const [flyvendePoint, setFlyvendePoint] = useState<{
+    id: number;
+    maengde: number;
+  } | null>(null);
+
+  // Hvilket level vi fejrer lige nu (eller null hvis ingen fejring).
+  const [fejrLevel, setFejrLevel] = useState<number | null>(null);
+
+  // Kør dette hver gang point eller level ændrer sig.
+  useEffect(() => {
+    // Mens man "tidsrejser" med testværktøjet, springer vi animationerne
+    // over - ellers ville man få fejringer for point på andre dage.
+    if (datoForskydning !== 0) {
+      forrigePoint.current = samledePoint;
+      forrigeLevel.current = levelInfo.level;
+      return;
+    }
+
+    // Er pointtallet steget? Så vis forskellen som et "+X".
+    const forskel = samledePoint - forrigePoint.current;
+    if (forskel > 0) {
+      setFlyvendePoint({ id: Date.now(), maengde: forskel });
+    }
+    forrigePoint.current = samledePoint;
+
+    // Er vi gået mindst ét level op? Så fejr det nye level.
+    if (levelInfo.level > forrigeLevel.current) {
+      setFejrLevel(levelInfo.level);
+    }
+    forrigeLevel.current = levelInfo.level;
+  }, [samledePoint, levelInfo.level, datoForskydning]);
+
+  // Fjern "+X" igen efter 1 sekund (lige så længe som animationen varer).
+  // Vi bruger en timer i stedet for at vente på at animationen slutter, så
+  // det også virker, hvis brugeren har slået bevægelse fra i sit system.
+  useEffect(() => {
+    if (flyvendePoint === null) return;
+    const timer = setTimeout(() => setFlyvendePoint(null), 1000);
+    return () => clearTimeout(timer);
+  }, [flyvendePoint]);
+
+  // Luk fejringen af sig selv efter 2,5 sekunder.
+  useEffect(() => {
+    if (fejrLevel === null) return;
+    const timer = setTimeout(() => setFejrLevel(null), 2500);
+    // Ryd op, hvis fejringen skifter, inden tiden er gået.
+    return () => clearTimeout(timer);
+  }, [fejrLevel]);
+
   // Ugens 7 dage (mandag..søndag) til uge-sporet i streak-kortet.
   const ugensDage = ugensDatoer(dato).map((d) => ({
     dato: d,
@@ -139,7 +202,22 @@ export default function App() {
           <>
             <TitelBanner titel={titel} level={levelInfo.level} />
 
-            <PointOversigt samledePoint={samledePoint} levelInfo={levelInfo} />
+            {/* Point-kortet. Vi lægger et lag udenom ("relative"), så det
+                svævende "+X" kan placeres oven på kortets øverste hjørne. */}
+            <div className="relative">
+              <PointOversigt samledePoint={samledePoint} levelInfo={levelInfo} />
+
+              {flyvendePoint && (
+                <span
+                  // Ny key hver gang = React laver et frisk element, så
+                  // CSS-animationen "animer-flyv-op" starter forfra.
+                  key={flyvendePoint.id}
+                  className="animer-flyv-op pointer-events-none absolute right-4 top-3 text-lg font-bold text-emerald-300"
+                >
+                  +{flyvendePoint.maengde}
+                </span>
+              )}
+            </div>
 
             <StreakBanner
               streak={streak}
@@ -177,6 +255,9 @@ export default function App() {
           onSkift={setDatoForskydning}
         />
       </div>
+
+      {/* Fejringen ligger uden for midterspalten, så den kan dække hele skærmen. */}
+      <Fejring level={fejrLevel} onLuk={() => setFejrLevel(null)} />
     </div>
   );
 }

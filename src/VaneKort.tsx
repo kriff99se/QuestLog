@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Vane } from "./types";
 
 // Props er de oplysninger, App sender ned til hvert kort.
@@ -24,13 +25,26 @@ export function VaneKort({ vane, gjort, streak, onSkift }: Props) {
   const pilleGlow =
     streak >= 30 ? { boxShadow: "0 0 12px rgba(239, 68, 68, 0.45)" } : undefined;
 
+  // Styrer det lille "pop" på fluebens-cirklen. Ved hvert klik tænder vi
+  // det kort og slukker det igen efter 300 ms (lige så længe animationen
+  // varer). En timer er nemmere at styre end at vente på "animation slut".
+  const [popper, setPopper] = useState(false);
+
+  function haandterKlik() {
+    onSkift();
+    setPopper(true);
+    setTimeout(() => setPopper(false), 300);
+  }
+
   return (
     <li>
       <button
         type="button"
-        onClick={onSkift}
+        onClick={haandterKlik}
+        // "active:scale-[0.98]" får kortet til at dykke en anelse, mens
+        // man holder museknappen nede - en lille "tryk"-fornemmelse.
         className={
-          "w-full flex items-center gap-3 rounded-xl border p-4 text-left transition-colors " +
+          "w-full flex items-center gap-3 rounded-xl border p-4 text-left transition-transform active:scale-[0.98] " +
           // Grøn kant og baggrund hvis vanen er klaret, ellers neutral grå.
           (gjort
             ? "border-emerald-500 bg-emerald-500/10"
@@ -57,10 +71,12 @@ export function VaneKort({ vane, gjort, streak, onSkift }: Props) {
           </span>
         )}
 
-        {/* Lille cirkel til højre der viser status: flueben hvis klaret. */}
+        {/* Lille cirkel til højre der viser status: flueben hvis klaret.
+            "animer-pop" spiller en kort skala-animation ved hvert klik. */}
         <span
           className={
             "flex h-6 w-6 items-center justify-center rounded-full border text-sm " +
+            (popper ? "animer-pop " : "") +
             (gjort
               ? "border-emerald-500 bg-emerald-500 text-slate-900"
               : "border-slate-600 text-transparent")

@@ -2,15 +2,16 @@
 
 En app hvor gode daglige vaner giver point, levels og streaks, plus en to-do liste.
 
-**Teknologi:** React + TypeScript + Vite + Tailwind + Framer Motion. Data gemmes
-i browserens `localStorage` (ingen server, ingen database).
+**Teknologi:** React + TypeScript + Vite + Tailwind. Animationer laves med ren
+CSS (planen sagde Framer Motion, men det virkede ikke i denne opsætning - se
+Fase 6). Data gemmes i browserens `localStorage` (ingen server, ingen database).
 
 Vi bygger i faser. Hver fase slutter med en app der kan køres og bruges. Efter
 hver fase laves en git-commit, så vi altid kan gå tilbage til noget der virkede.
 
 ---
 
-## Status (opdateret 5. september 2026, Fase 5 færdig)
+## Status (opdateret 5. september 2026, Fase 6 færdig)
 
 | Fase | Status |
 |---|---|
@@ -20,7 +21,7 @@ hver fase laves en git-commit, så vi altid kan gå tilbage til noget der virked
 | Fase 3 – Rediger vaner i appen | ✅ Færdig |
 | Fase 4 – Streaks og tærskel | ✅ Færdig |
 | Fase 5 – To-do liste | ✅ Færdig |
-| Fase 6 – Animationer | ⬜ Ikke lavet endnu |
+| Fase 6 – Animationer | ✅ Færdig |
 | Fase 7 – Finpudsning | ⬜ Ikke lavet endnu |
 
 Alt er skubbet til GitHub (`origin/main`).
@@ -122,13 +123,28 @@ Ting vi har besluttet, mens vi byggede, som ikke stod i den oprindelige plan:
   opgaver hverken fylder skærmen eller sløver siden. Sletning af en *færdig*
   opgave bekræftes med en `window.confirm` (fordi det koster point); opgaver
   der ikke er klaret, slettes uden at spørge.
+- **Fase 6 – animationer med ren CSS i stedet for Framer Motion.** Planen
+  sagde Framer Motion, og pakken lå i `package.json`. Men da vi prøvede,
+  ville dens animationer ikke køre i denne opsætning (Framer Motion 13 +
+  React 19 + Vite 8) - elementerne blev bare stående på deres startværdi.
+  I stedet bruger vi almindelige CSS-`@keyframes` (se `src/index.css`):
+  enklere at forstå, ingen ekstra pakke (bundt tilbage til ~207 KB), og
+  det virker. `framer-motion` er afinstalleret.
+- Animationer der reagerer på ændringer i point/level opdages ved at gemme
+  den forrige værdi i en `useRef` og sammenligne i en `useEffect`. "+X" og
+  fejringen fjernes igen af en `setTimeout` (ikke af "animation slut"), så
+  det også virker, hvis brugeren har slået bevægelse fra i sit system.
+- **Bemærk om test:** animationerne kunne ikke ses i det automatiske
+  browser-vindue, fordi den fane kører i baggrunden, og browsere sætter
+  CSS-animationer på pause i baggrundsfaner. Selve logikken (klasser sættes
+  på, fejrings-laget dukker op ved level up, "+X" ved point) er afprøvet.
 
 ---
 
 ## Faser
 
 ### Fase 0 – Opsætning ✅
-Vite + React + TS + Tailwind + Framer Motion sat op. Simpel forside med app-navnet.
+Vite + React + TS + Tailwind sat op. Simpel forside med app-navnet.
 
 **Virker når:** `npm run dev` viser en side med virkende Tailwind-styling.
 
@@ -174,10 +190,25 @@ der starter lukket.
 
 **Virker når:** opgaver og deres status overlever en genindlæsning.
 
-### Fase 6 – Animationer med Framer Motion ⬜
+### Fase 6 – Animationer (ren CSS) ✅
 Lille "pop" ved afkrydsning. `+X` der svæver op ved point. Kort fejring ved level up.
 
 **Virker når:** bevægelserne er glatte, og alt fra tidligere faser virker stadig.
+
+Detaljer:
+- **Pop ved afkrydsning:** vane-kort og to-do cirkler dykker lidt, mens man
+  klikker (`active:scale-...`), og fluebens-cirklen laver et lille skala-"pop"
+  (CSS-klassen `animer-pop`), styret af en `popper`-state der slukkes efter
+  300 ms. I `VaneKort.tsx` og `TodoListe.tsx`.
+- **"+X" der svæver op:** i `App.tsx` husker vi det forrige pointtal i en
+  `useRef`. Stiger tallet, viser vi forskellen som et grønt `+X` (`animer-flyv-op`),
+  der toner ind, svæver op og forsvinder (ca. 1 sek.). Ligger oven på point-kortet.
+- **Fejring ved level up:** komponenten `Fejring.tsx`. Et mørkt lag over hele
+  skærmen med en boks der "popper" ind (🎉 + "Level N!"). Lukker af sig selv
+  efter 2,5 sek. eller ved klik.
+- **Testværktøjet slår animationerne fra:** når man "tidsrejser" med dato-
+  værktøjet, springes point-/level-animationer over, så man ikke får en
+  fejring for point på en anden dag.
 
 ### Fase 7 – Finpudsning (valgfri) ⬜
 Simpel historik-/kalendervisning. "Nulstil alt"-knap med bekræftelse. Tjek

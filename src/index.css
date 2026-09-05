@@ -1,3 +1,93 @@
 /* Henter hele Tailwind ind. Herefter kan vi style med Tailwind-klasser
    direkte i className, fx "text-4xl font-bold". */
 @import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Animationer (Fase 6)
+
+   Vi bruger helt almindelige CSS-animationer i stedet for et bibliotek.
+   En @keyframes beskriver et forløb (fra ... til ...), og en klasse med
+   "animation: ..." sætter forløbet i gang på det element, klassen ligger på.
+   --------------------------------------------------------------------------- */
+
+/* Et lille "pop": elementet vokser kort og falder tilbage på plads.
+   Bruges på fluebens-cirklen, når en vane eller opgave krydses af. */
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.animer-pop {
+  animation: pop 0.3s ease-out;
+}
+
+/* Et "+X" der toner ind, svæver opad og forsvinder igen.
+   "forwards" betyder: bliv stående på det sidste billede (usynlig). */
+@keyframes flyv-op {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-36px);
+  }
+}
+.animer-flyv-op {
+  animation: flyv-op 1s ease-out forwards;
+}
+
+/* Fejrings-boksen popper op (starter lille, hopper lidt forbi og lander). */
+@keyframes fejring-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.animer-fejring {
+  animation: fejring-pop 0.35s ease-out;
+}
+
+/* Det mørke lag bag fejringen toner blødt ind. */
+@keyframes ton-ind {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.animer-ton-ind {
+  animation: ton-ind 0.2s ease-out;
+}
+
+/* Har brugeren slået bevægelse fra i sit styresystem, dropper vi
+   animationerne helt. */
+@media (prefers-reduced-motion: reduce) {
+  .animer-pop,
+  .animer-flyv-op,
+  .animer-fejring,
+  .animer-ton-ind {
+    animation: none;
+  }
+}

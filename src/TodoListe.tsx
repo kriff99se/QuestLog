@@ -164,15 +164,26 @@ function TodoRaekke({
   onSkift: () => void;
   onSlet: () => void;
 }) {
+  // Styrer det lille "pop" på cirklen: tænd ved klik, sluk efter 300 ms.
+  const [popper, setPopper] = useState(false);
+
+  function haandterKlik() {
+    onSkift();
+    setPopper(true);
+    setTimeout(() => setPopper(false), 300);
+  }
+
   return (
     <li className="flex items-center gap-3 rounded-xl border border-slate-700 bg-slate-800 p-3">
-      {/* Klik på cirklen krydser opgaven af (eller fjerner fluebenet igen). */}
+      {/* Klik på cirklen krydser opgaven af (eller fjerner fluebenet igen).
+          "animer-pop" spiller en kort skala-animation ved hvert klik. */}
       <button
         type="button"
-        onClick={onSkift}
+        onClick={haandterKlik}
         aria-label={todo.faerdig ? "Fjern flueben" : "Marker som klaret"}
         className={
-          "flex h-6 w-6 flex-none items-center justify-center rounded-full border text-sm " +
+          "flex h-6 w-6 flex-none items-center justify-center rounded-full border text-sm transition-transform active:scale-90 " +
+          (popper ? "animer-pop " : "") +
           (todo.faerdig
             ? "border-emerald-500 bg-emerald-500 text-slate-900"
             : "border-slate-500 text-transparent hover:border-slate-400")
