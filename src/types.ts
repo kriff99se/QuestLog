@@ -20,3 +20,10 @@ export type Afkrydsninger = {
     [vaneId: string]: boolean;
   };
 };
+
+// Appens indstillinger.
+export type Indstillinger = {
+  // Hvor mange vaner der skal krydses af på en dag,
+  // før dagen tæller som en "grøn dag" i streaken.
+  taerskel: number;
+};

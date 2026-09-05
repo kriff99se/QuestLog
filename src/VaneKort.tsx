@@ -4,12 +4,13 @@ import type { Vane } from "./types";
 type Props = {
   vane: Vane;
   gjort: boolean; // er vanen krydset af i dag?
+  streak: number; // dage i træk denne vane er holdt (0 = ingen)
   onSkift: () => void; // kaldes når brugeren klikker på kortet
 };
 
 // Ét vane-kort i listen. Et klik hvor som helst på kortet
 // skifter mellem "gjort" og "ikke gjort".
-export function VaneKort({ vane, gjort, onSkift }: Props) {
+export function VaneKort({ vane, gjort, streak, onSkift }: Props) {
   return (
     <li>
       <button
@@ -27,7 +28,11 @@ export function VaneKort({ vane, gjort, onSkift }: Props) {
 
         <span className="flex-1">
           <span className="block font-medium">{vane.navn}</span>
-          <span className="block text-sm text-slate-400">{vane.point} point</span>
+          <span className="block text-sm text-slate-400">
+            {vane.point} point
+            {/* Flamme-tal: kun vist hvis vanen er holdt mindst én dag i træk. */}
+            {streak > 0 && <span className="ml-2">🔥 {streak}</span>}
+          </span>
         </span>
 
         {/* Lille cirkel til højre der viser status: flueben hvis klaret. */}

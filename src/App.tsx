@@ -1,18 +1,20 @@
 import { useState, type ReactNode } from "react";
 import { useLocalStorage } from "./useLocalStorage";
 import { STANDARD_VANER } from "./vaner";
-import type { Afkrydsninger } from "./types";
-import { iDagISO, iDagLang } from "./datoer";
+import type { Afkrydsninger, Indstillinger } from "./types";
+import { datoForskudt, datoLang } from "./datoer";
 import { VaneKort } from "./VaneKort";
 import { beregnSamledePoint, beregnLevel } from "./point";
 import { PointOversigt } from "./PointOversigt";
 import { findTitel } from "./titler";
 import { TitelBanner } from "./TitelBanner";
 import { RedigerVaner } from "./RedigerVaner";
+import { samletStreak, vaneStreak } from "./streaks";
+import { StreakBanner } from "./StreakBanner";
+import { DatoHjaelper } from "./DatoHjaelper";
 
 export default function App() {
   // Vanerne. Første gang appen åbnes, bruges standardlisten med de 10 vaner.
-  // Fra Fase 3 kan de redigeres i appen (se RedigerVaner).
   const [vaner, setVaner] = useLocalStorage("vaner", STANDARD_VANER);
 
   // Alle afkrydsninger nogensinde, gemt pr. dato. Starter som et tomt objekt.
@@ -21,23 +23,31 @@ export default function App() {
     {},
   );
 
-  // Hvilken skærm vi kigger på: dagens vaner eller redigerings-skærmen.
-  // Dette skal IKKE gemmes - appen starter altid på "i-dag".
+  // Indstillinger. Lige nu kun tærsklen for en "grøn dag" (standard 7).
+  const [indstillinger, setIndstillinger] = useLocalStorage<Indstillinger>(
+    "indstillinger",
+    { taerskel: 7 },
+  );
+
+  // Hvilken skærm vi kigger på. Gemmes IKKE - appen starter altid på "i-dag".
   const [visning, setVisning] = useState<"i-dag" | "rediger">("i-dag");
 
-  const dato = iDagISO();
-  // Afkrydsningerne for netop i dag (eller et tomt objekt, hvis der ingen er endnu).
+  // Testværktøj: hvor mange dage vi har "rejst" væk fra den rigtige dag.
+  // 0 = i dag. Gemmes ikke.
+  const [datoForskydning, setDatoForskydning] = useState(0);
+
+  // Den dato appen arbejder med lige nu (påvirket af testværktøjet).
+  const dato = datoForskudt(datoForskydning);
+
+  // Afkrydsningerne for netop denne dag (eller et tomt objekt).
   const dagensAfkrydsninger = afkrydsninger[dato] ?? {};
 
-  // Skifter én vane mellem "gjort" og "ikke gjort" for i dag.
+  // Skifter én vane mellem "gjort" og "ikke gjort" for den valgte dag.
   function skiftVane(vaneId: string) {
     setAfkrydsninger((tidligere) => {
       const dagen = tidligere[dato] ?? {};
       return {
-        // Behold alle de andre dage som de var...
         ...tidligere,
-        // ...og lav en ny udgave af dagens afkrydsninger,
-        // hvor netop denne vane vendes om (true bliver false og omvendt).
         [dato]: {
           ...dagen,
           [vaneId]: !dagen[vaneId],
@@ -46,30 +56,47 @@ export default function App() {
     });
   }
 
-  // Hvor mange af vanerne er klaret i dag?
+  // Sæt tærsklen, men hold den mellem 1 og antallet af vaner.
+  function saetTaerskel(ny: number) {
+    const holdtIndenfor = Math.max(1, Math.min(ny, vaner.length));
+    setIndstillinger({ ...indstillinger, taerskel: holdtIndenfor });
+  }
+
+  // Hvor mange af vanerne er klaret den valgte dag?
   const antalGjort = vaner.filter((vane) => dagensAfkrydsninger[vane.id]).length;
 
-  // Samlede point og level. Regnes ud fra alle afkrydsninger nogensinde,
-  // så tallene altid passer med data. Ændrer sig automatisk, når du
-  // krydser en vane af eller fra - eller ændrer en vanes point.
+  // Tærsklen vi regner med. Hvis den gemte værdi er blevet for høj (fx fordi
+  // vaner er slettet), klemmer vi den ned, så en grøn dag stadig er mulig.
+  const taerskel = Math.max(1, Math.min(indstillinger.taerskel, vaner.length));
+
+  // Samlede point og level. Regnes ud fra alle afkrydsninger nogensinde.
   const samledePoint = beregnSamledePoint(vaner, afkrydsninger);
   const levelInfo = beregnLevel(samledePoint);
-
-  // Titlen der hører til dit nuværende level (fx "Noob" eller "Zyzz").
   const titel = findTitel(levelInfo.level);
+
+  // Den samlede dags-streak (grønne dage i træk), regnet fra den valgte dag.
+  const streak = samletStreak(vaner, afkrydsninger, dato, taerskel);
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 p-6">
       <div className="mx-auto max-w-md flex flex-col gap-6">
         <header className="flex flex-col gap-1">
           <h1 className="text-3xl font-bold text-emerald-400">QuestLog</h1>
-          {/* first-letter:uppercase gør det første bogstav stort,
-              så der står "Fredag den 5. september 2026". */}
-          <p className="text-slate-400 first-letter:uppercase">{iDagLang()}</p>
+          <p className="text-slate-400 first-letter:uppercase">
+            {datoLang(dato)}
+          </p>
           <p className="text-sm text-slate-500">
-            {antalGjort} af {vaner.length} vaner klaret i dag
+            {antalGjort} af {vaner.length} vaner klaret
           </p>
         </header>
+
+        {/* Advarsel når vi kigger på en anden dag end i dag. */}
+        {datoForskydning !== 0 && (
+          <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-2 text-sm text-amber-300">
+            Du kigger på en anden dag end i dag ({datoForskydning > 0 ? "+" : ""}
+            {datoForskydning} dage).
+          </p>
+        )}
 
         {/* Menu til at skifte mellem de to skærme. */}
         <nav className="flex gap-2">
@@ -87,12 +114,19 @@ export default function App() {
           </FaneKnap>
         </nav>
 
-        {/* Vis den ene eller den anden skærm alt efter "visning". */}
         {visning === "i-dag" ? (
           <>
             <TitelBanner titel={titel} level={levelInfo.level} />
 
             <PointOversigt samledePoint={samledePoint} levelInfo={levelInfo} />
+
+            <StreakBanner
+              streak={streak}
+              taerskel={taerskel}
+              antalVaner={vaner.length}
+              gjortIDag={antalGjort}
+              onTaerskel={saetTaerskel}
+            />
 
             <ul className="flex flex-col gap-3">
               {vaner.map((vane) => (
@@ -100,6 +134,7 @@ export default function App() {
                   key={vane.id}
                   vane={vane}
                   gjort={Boolean(dagensAfkrydsninger[vane.id])}
+                  streak={vaneStreak(afkrydsninger, vane.id, dato)}
                   onSkift={() => skiftVane(vane.id)}
                 />
               ))}
@@ -108,6 +143,11 @@ export default function App() {
         ) : (
           <RedigerVaner vaner={vaner} setVaner={setVaner} />
         )}
+
+        <DatoHjaelper
+          forskydning={datoForskydning}
+          onSkift={setDatoForskydning}
+        />
       </div>
     </div>
   );

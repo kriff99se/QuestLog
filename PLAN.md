@@ -18,7 +18,7 @@ hver fase laves en git-commit, så vi altid kan gå tilbage til noget der virked
 | Fase 1 – Vaner og afkrydsning for i dag | ✅ Færdig |
 | Fase 2 – Point og levels (+ level-titler) | ✅ Færdig |
 | Fase 3 – Rediger vaner i appen | ✅ Færdig |
-| Fase 4 – Streaks og tærskel | ⬜ Ikke lavet endnu |
+| Fase 4 – Streaks og tærskel | ✅ Færdig |
 | Fase 5 – To-do liste | ⬜ Ikke lavet endnu |
 | Fase 6 – Animationer | ⬜ Ikke lavet endnu |
 | Fase 7 – Finpudsning | ⬜ Ikke lavet endnu |
@@ -53,7 +53,7 @@ Maks. på en dag: 160 point.
 
 - `vaner` — liste med `{ id, navn, ikon, point }`, startet fra de 10 standardvaner ovenfor *(findes)*
 - `afkrydsninger` — ét objekt pr. dato, fx `"2026-09-05" -> { fitness: true, soevn: true }` *(findes)*
-- `indstillinger` — bl.a. `taerskel` (standard 7 ud af 10) *(kommer i Fase 4)*
+- `indstillinger` — bl.a. `taerskel` (standard 7 ud af 10) *(findes)*
 - `todos` — liste med `{ id, tekst, faerdig }` *(kommer i Fase 5)*
 
 Point, levels og streaks **gemmes ikke** — de beregnes altid ud fra data ovenfor,
@@ -90,9 +90,12 @@ Ting vi har besluttet, mens vi byggede, som ikke stod i den oprindelige plan:
 - **Fase 3-detaljer:** sletning af en vane bekræftes med en "er du sikker?"-boks
   (`window.confirm`). Nye vaner får et id ud fra tidspunktet, fx
   `"vane-1788630943107"`.
-- **Fase 4-beslutning (ikke bygget endnu):** "i dag" tæller kun med i den samlede
-  streak, hvis dagen allerede er grøn; ellers tælles der fra i går, så streaken
-  ikke står på 0 hver morgen.
+- **Fase 4-regel:** "i dag" tæller kun med i den samlede streak, hvis dagen
+  allerede er grøn; ellers tælles der fra i går, så streaken ikke står på 0 hver
+  morgen. Samme regel for streak pr. vane.
+- **Fase 4-testværktøj:** en linje nederst med ◀ dag / I dag / dag ▶ til at
+  flytte "dagens dato" frem og tilbage, så streaks kan afprøves uden at vente.
+  Forskydningen gemmes ikke.
 
 ---
 
@@ -124,7 +127,7 @@ Skærm hvor du kan tilføje, omdøbe, skifte ikon, skifte point og slette vaner.
 
 **Virker når:** dine ændringer huskes efter genindlæsning og påvirker pointberegningen.
 
-### Fase 4 – Streaks og "godt nok"-tærskel ⬜
+### Fase 4 – Streaks og "godt nok"-tærskel ✅
 - Samlet dags-streak: antal grønne dage i træk (en grøn dag = du rammer tærsklen).
   "I dag" tæller kun med, hvis dagen allerede er grøn; ellers tælles fra i går.
 - Streak pr. vane: flamme-tal ved hver vane = dage i træk den vane er holdt.
