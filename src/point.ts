@@ -4,9 +4,21 @@ import type { Vane, Afkrydsninger } from "./types";
 // bliver gemt nogen steder. Vi regner dem altid ud fra vanerne og
 // afkrydsningerne, så tallene aldrig kan komme i utakt med data.
 
-// Hvor mange point der skal til for at gå ét level op.
-// Et rundt tal gør det nemt at regne i hovedet: hver 100 point = nyt level.
-export const POINT_PR_LEVEL = 100;
+// Level 1 -> 2 koster BASISPRIS point. Hvert level derefter koster
+// FAKTOR gange så meget som det forrige. Med 100 og 1,5 bliver det:
+// 100, 150, 230, 340, 510 ... (afrundet til nærmeste 10).
+export const BASISPRIS = 100;
+export const FAKTOR = 1.5;
+
+// Hvor mange point det koster at gå fra "level" til "level + 1".
+export function prisForLevel(level: number): number {
+  // Math.pow(1.5, n) betyder "1,5 ganget med sig selv n gange".
+  // level 1 -> 1,5^0 = 1, level 2 -> 1,5^1 = 1,5, osv.
+  const raaPris = BASISPRIS * Math.pow(FAKTOR, level - 1);
+
+  // Rund til nærmeste 10, så tallene er pæne at se på.
+  return Math.round(raaPris / 10) * 10;
+}
 
 // Læg point sammen for alle afkrydsninger nogensinde.
 // For hver dato kigger vi på hver vane: er den krydset af, tæller dens point med.
@@ -34,24 +46,37 @@ export function beregnSamledePoint(
 export type LevelInfo = {
   level: number; // hvilket level man er på nu (starter på 1)
   pointIDetteLevel: number; // point tjent siden dette level begyndte
+  prisForDetteLevel: number; // hvor mange point hele dette level koster
   pointTilNaeste: number; // hvor mange point der mangler til næste level
   procent: number; // hvor fyldt fremskridtsbjælken er, 0-100
 };
 
 // Regn level-oplysninger ud fra de samlede point.
+// Fordi prisen stiger for hvert level, kan vi ikke bare dividere.
+// I stedet "betaler" vi os op gennem et level ad gangen, så længe
+// der er point nok til det næste.
 export function beregnLevel(samledePoint: number): LevelInfo {
-  // Math.floor runder ned. 0-99 point -> level 1, 100-199 -> level 2, osv.
-  const level = Math.floor(samledePoint / POINT_PR_LEVEL) + 1;
+  let level = 1;
+  let pointTilbage = samledePoint;
+  let pris = prisForLevel(level);
 
-  // Resten efter division (%) er point tjent inde i det nuværende level.
-  const pointIDetteLevel = samledePoint % POINT_PR_LEVEL;
+  // Har vi råd til at rykke et level op? Så træk prisen fra og gør det.
+  while (pointTilbage >= pris) {
+    pointTilbage -= pris;
+    level += 1;
+    pris = prisForLevel(level);
+  }
 
-  const pointTilNaeste = POINT_PR_LEVEL - pointIDetteLevel;
+  // Det der er tilbage, er point tjent inde i det nuværende level.
+  const pointIDetteLevel = pointTilbage;
+  const pointTilNaeste = pris - pointTilbage;
+  const procent = (pointTilbage / pris) * 100;
 
-  // Da et level er præcis 100 point, er procenten lig med pointIDetteLevel.
-  // Vi regner den alligevel ud "rigtigt", så det stadig virker hvis vi
-  // senere ændrer POINT_PR_LEVEL.
-  const procent = (pointIDetteLevel / POINT_PR_LEVEL) * 100;
-
-  return { level, pointIDetteLevel, pointTilNaeste, procent };
+  return {
+    level,
+    pointIDetteLevel,
+    prisForDetteLevel: pris,
+    pointTilNaeste,
+    procent,
+  };
 }

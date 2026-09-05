@@ -5,6 +5,8 @@ import { iDagISO, iDagLang } from "./datoer";
 import { VaneKort } from "./VaneKort";
 import { beregnSamledePoint, beregnLevel } from "./point";
 import { PointOversigt } from "./PointOversigt";
+import { findTitel } from "./titler";
+import { TitelBanner } from "./TitelBanner";
 
 export default function App() {
   // Vanerne. Første gang appen åbnes, bruges standardlisten med de 9 vaner.
@@ -47,6 +49,9 @@ export default function App() {
   const samledePoint = beregnSamledePoint(vaner, afkrydsninger);
   const levelInfo = beregnLevel(samledePoint);
 
+  // Titlen der hører til dit nuværende level (fx "Noob" eller "Zyzz").
+  const titel = findTitel(levelInfo.level);
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 p-6">
       <div className="mx-auto max-w-md flex flex-col gap-6">
@@ -59,6 +64,8 @@ export default function App() {
             {antalGjort} af {vaner.length} vaner klaret i dag
           </p>
         </header>
+
+        <TitelBanner titel={titel} level={levelInfo.level} />
 
         <PointOversigt samledePoint={samledePoint} levelInfo={levelInfo} />
 

@@ -62,8 +62,10 @@ vaner; klik skifter mellem gjort / ikke gjort. Afkrydsninger gemmes pr. dato.
 **Virker når:** du krydser vaner af, genindlæser siden, og de er der stadig.
 
 ### Fase 2 – Point og levels
-Læg alle afkrydsningers point sammen. Simpel level-formel. Vis samlede point,
-nuværende level og en fremskridtsbjælke mod næste level.
+Læg alle afkrydsningers point sammen. Level-pris stiger 1,5× pr. level (100,
+150, 230, 340 …). Vis samlede point, nuværende level og en fremskridtsbjælke
+mod næste level. Desuden en level-titel (Noob → … → Zyzz) med emoji eller et
+valgfrit billede.
 
 **Virker når:** en afkrydsning øger pointtallet, bjælken fyldes, level stiger ved grænsen.
 

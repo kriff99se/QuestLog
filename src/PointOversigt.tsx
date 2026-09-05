@@ -1,5 +1,4 @@
 import type { LevelInfo } from "./point";
-import { POINT_PR_LEVEL } from "./point";
 
 // Props: de færdigberegnede tal, som App sender ned.
 type Props = {
@@ -29,7 +28,7 @@ export function PointOversigt({ samledePoint, levelInfo }: Props) {
       </div>
 
       <p className="text-xs text-slate-500">
-        {levelInfo.pointIDetteLevel} / {POINT_PR_LEVEL} point &mdash;{" "}
+        {levelInfo.pointIDetteLevel} / {levelInfo.prisForDetteLevel} point &mdash;{" "}
         {levelInfo.pointTilNaeste} til level {levelInfo.level + 1}
       </p>
     </div>
