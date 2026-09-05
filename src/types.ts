@@ -7,6 +7,10 @@ export type Vane = {
   navn: string; // det brugeren læser, fx "Fitness"
   ikon: string; // en emoji, fx "🏋️"
   point: number; // hvor mange point vanen giver om dagen
+  // Valgfrit: kroner sparet for hver dag vanen holdes. Bruges fx til
+  // "Ingen snus" (60 kr/dag). Er den ikke sat (eller 0), vises der ingen
+  // pengeoplysning på kortet.
+  sparerPrDag?: number;
 };
 
 // Alle afkrydsninger, opdelt efter dato.

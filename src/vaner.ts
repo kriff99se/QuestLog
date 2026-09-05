@@ -13,5 +13,6 @@ export const STANDARD_VANER: Vane[] = [
   { id: "sauna", navn: "Sauna", ikon: "🧖", point: 15 },
   { id: "kost", navn: "Sund kost", ikon: "🥗", point: 20 },
   { id: "fitness", navn: "Fitness", ikon: "🏋️", point: 25 },
-  { id: "ingen-snus", navn: "Ingen snus", ikon: "🚭", point: 25 },
+  // "Ingen snus" sparer også penge: 60 kr for hver snusfri dag.
+  { id: "ingen-snus", navn: "Ingen snus", ikon: "🚭", point: 25, sparerPrDag: 60 },
 ];

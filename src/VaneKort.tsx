@@ -6,12 +6,14 @@ type Props = {
   vane: Vane;
   gjort: boolean; // er vanen krydset af i dag?
   streak: number; // dage i træk denne vane er holdt (0 = ingen)
+  dageGjortIAlt: number; // hvor mange dage i alt vanen er krydset af
   onSkift: () => void; // kaldes når brugeren klikker på kortet
 };
 
-// Ét vane-kort i listen. Et klik hvor som helst på kortet
-// skifter mellem "gjort" og "ikke gjort".
-export function VaneKort({ vane, gjort, streak, onSkift }: Props) {
+// Ét vane-kort i listen. Et klik på selve rækken skifter mellem
+// "gjort" og "ikke gjort". Har vanen en besparelse pr. dag (fx "Ingen
+// snus"), er der desuden en lille 💰-knap nederst på kortet.
+export function VaneKort({ vane, gjort, streak, dageGjortIAlt, onSkift }: Props) {
   // Streak-pillen bliver varmere, jo længere streaken er:
   // gul under 7 dage, orange fra 7, rød med glød fra 30.
   const pilleFarve =
@@ -30,26 +32,36 @@ export function VaneKort({ vane, gjort, streak, onSkift }: Props) {
   // varer). En timer er nemmere at styre end at vente på "animation slut".
   const [popper, setPopper] = useState(false);
 
+  // Er penge-linjen foldet ud? Starter skjult.
+  const [visPenge, setVisPenge] = useState(false);
+
   function haandterKlik() {
     onSkift();
     setPopper(true);
     setTimeout(() => setPopper(false), 300);
   }
 
+  // Kroner sparet i alt = beløb pr. dag × antal dage vanen er holdt.
+  const sparerPrDag = vane.sparerPrDag ?? 0;
+  const sparetIAlt = sparerPrDag * dageGjortIAlt;
+
   return (
-    <li>
+    <li
+      className={
+        // Kortets ramme og farve ligger nu på <li>, så penge-linjen kan
+        // ligge inde i det samme kort som selve afkrydsningen.
+        // "overflow-hidden" holder skillelinjen inden for de runde hjørner.
+        "overflow-hidden rounded-xl border " +
+        (gjort
+          ? "border-emerald-500 bg-emerald-500/10"
+          : "border-slate-700 bg-slate-800")
+      }
+    >
+      {/* Selve afkrydsningen: klik hvor som helst på rækken. */}
       <button
         type="button"
         onClick={haandterKlik}
-        // "active:scale-[0.98]" får kortet til at dykke en anelse, mens
-        // man holder museknappen nede - en lille "tryk"-fornemmelse.
-        className={
-          "w-full flex items-center gap-3 rounded-xl border p-4 text-left transition-transform active:scale-[0.98] " +
-          // Grøn kant og baggrund hvis vanen er klaret, ellers neutral grå.
-          (gjort
-            ? "border-emerald-500 bg-emerald-500/10"
-            : "border-slate-700 bg-slate-800 hover:border-slate-600")
-        }
+        className="flex w-full items-center gap-3 p-4 text-left transition-transform active:scale-[0.98]"
       >
         <span className="flex-none text-2xl">{vane.ikon}</span>
 
@@ -87,6 +99,33 @@ export function VaneKort({ vane, gjort, streak, onSkift }: Props) {
           ✓
         </span>
       </button>
+
+      {/* Penge-linje: kun hvis vanen har en besparelse pr. dag. */}
+      {sparerPrDag > 0 && (
+        <div className="border-t border-slate-700/60 px-4 py-2 text-sm">
+          <button
+            type="button"
+            onClick={() => setVisPenge((v) => !v)}
+            className="flex items-center gap-1.5 text-slate-400 hover:text-slate-200"
+          >
+            <span>💰</span>
+            <span>
+              {visPenge ? "Skjul besparelse" : "Se hvad du har sparet"}
+            </span>
+          </button>
+
+          {visPenge && (
+            <p className="mt-1 text-emerald-300">
+              Du har sparet{" "}
+              <span className="font-semibold">
+                {sparetIAlt.toLocaleString("da-DK")} kr
+              </span>{" "}
+              &mdash; {dageGjortIAlt} {dageGjortIAlt === 1 ? "dag" : "dage"} ×{" "}
+              {sparerPrDag} kr.
+            </p>
+          )}
+        </div>
+      )}
     </li>
   );
 }

@@ -236,3 +236,20 @@ mobil-layout.
   og fremskridtsbjælken, også når man har scrollet langt ned i vane-listen.
   (Derfor bruger ydersiden `overflow-x-clip` og ikke `-hidden` - `hidden`
   ville slå `sticky` ihjel.)
+
+### Ekstra: penge sparet pr. vane (efter Fase 7)
+
+Valgfrit felt `sparerPrDag` på en `Vane` (kroner sparet for hver dag vanen
+holdes). "Ingen snus" har 60 kr/dag som standard i `STANDARD_VANER`.
+
+- Har en vane et beløb > 0, viser dens kort en lille "💰 Se hvad du har
+  sparet"-knap. Foldet ud: "Du har sparet X kr — N dage × beløb".
+- Beløbet er **alle dage nogensinde** hvor vanen er krydset af, ikke kun
+  den nuværende stime. Ny hjælper `antalDageVaneGjort` i `streaks.ts`.
+- `RedigerVaner` har et "Sparer kr/dag"-felt ved siden af "Point", så
+  beløbet kan ændres (eller sættes på andre vaner).
+- Bevidst valg: generelt felt frem for at hardkode "ingen-snus" og 60 -
+  så overlever det, at vanen redigeres, og virker for andre "undgå"-vaner.
+- `VaneKort` er skrevet lidt om: rammen/farven ligger nu på `<li>`, så
+  penge-linjen kan ligge i samme kort som selve afkrydsningen (uden at
+  have en `<button>` inde i en `<button>`).

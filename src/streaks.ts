@@ -14,6 +14,16 @@ export function antalGjortPaaDato(
   return vaner.filter((vane) => dagen[vane.id]).length;
 }
 
+// Hvor mange dage i alt (nogensinde) er en bestemt vane krydset af?
+// Bruges til at regne den samlede besparelse ud på fx "Ingen snus".
+export function antalDageVaneGjort(
+  afkrydsninger: Afkrydsninger,
+  vaneId: string,
+): number {
+  // Object.values giver os ét objekt pr. dato, fx { fitness: true }.
+  return Object.values(afkrydsninger).filter((dag) => dag[vaneId]).length;
+}
+
 // En "grøn dag" = mindst 'taerskel' vaner krydset af den dag.
 export function erGroenDag(
   vaner: Vane[],

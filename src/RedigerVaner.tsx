@@ -67,7 +67,7 @@ export function RedigerVaner({ vaner, setVaner }: Props) {
               />
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <label className="flex items-center gap-2 text-sm text-slate-400">
                 Point
                 <input
@@ -83,10 +83,27 @@ export function RedigerVaner({ vaner, setVaner }: Props) {
                 />
               </label>
 
+              {/* Valgfrit: kroner sparet pr. dag vanen holdes. 0 = ingen
+                  penge-visning på kortet. */}
+              <label className="flex items-center gap-2 text-sm text-slate-400">
+                Sparer kr/dag
+                <input
+                  type="number"
+                  min={0}
+                  value={vane.sparerPrDag ?? 0}
+                  onChange={(e) =>
+                    opdaterVane(vane.id, {
+                      sparerPrDag: Number(e.target.value) || 0,
+                    })
+                  }
+                  className="w-20 rounded-lg border border-slate-600 bg-slate-900 px-2 py-1 text-slate-100"
+                />
+              </label>
+
               <button
                 type="button"
                 onClick={() => sletVane(vane.id)}
-                className="rounded-lg px-3 py-1 text-sm text-red-400 hover:bg-red-500/10"
+                className="ml-auto rounded-lg px-3 py-1 text-sm text-red-400 hover:bg-red-500/10"
               >
                 Slet
               </button>

@@ -9,7 +9,12 @@ import { PointOversigt } from "./PointOversigt";
 import { findTitel } from "./titler";
 import { TitelBanner } from "./TitelBanner";
 import { RedigerVaner } from "./RedigerVaner";
-import { samletStreak, vaneStreak, erGroenDag } from "./streaks";
+import {
+  samletStreak,
+  vaneStreak,
+  erGroenDag,
+  antalDageVaneGjort,
+} from "./streaks";
 import { StreakBanner } from "./StreakBanner";
 import { DatoHjaelper } from "./DatoHjaelper";
 import { TodoListe } from "./TodoListe";
@@ -267,6 +272,7 @@ export default function App() {
                   vane={vane}
                   gjort={Boolean(dagensAfkrydsninger[vane.id])}
                   streak={vaneStreak(afkrydsninger, vane.id, dato)}
+                  dageGjortIAlt={antalDageVaneGjort(afkrydsninger, vane.id)}
                   onSkift={() => skiftVane(vane.id)}
                 />
               ))}
