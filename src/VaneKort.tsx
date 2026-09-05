@@ -11,6 +11,19 @@ type Props = {
 // Ét vane-kort i listen. Et klik hvor som helst på kortet
 // skifter mellem "gjort" og "ikke gjort".
 export function VaneKort({ vane, gjort, streak, onSkift }: Props) {
+  // Streak-pillen bliver varmere, jo længere streaken er:
+  // gul under 7 dage, orange fra 7, rød med glød fra 30.
+  const pilleFarve =
+    streak >= 30
+      ? "bg-red-500/20 text-red-300"
+      : streak >= 7
+        ? "bg-orange-500/20 text-orange-300"
+        : "bg-amber-500/15 text-amber-300";
+
+  // Ekstra glød om pillen ved lange streaks (30+ dage).
+  const pilleGlow =
+    streak >= 30 ? { boxShadow: "0 0 12px rgba(239, 68, 68, 0.45)" } : undefined;
+
   return (
     <li>
       <button
@@ -28,12 +41,21 @@ export function VaneKort({ vane, gjort, streak, onSkift }: Props) {
 
         <span className="flex-1">
           <span className="block font-medium">{vane.navn}</span>
-          <span className="block text-sm text-slate-400">
-            {vane.point} point
-            {/* Flamme-tal: kun vist hvis vanen er holdt mindst én dag i træk. */}
-            {streak > 0 && <span className="ml-2">🔥 {streak}</span>}
-          </span>
+          <span className="block text-sm text-slate-400">{vane.point} point</span>
         </span>
+
+        {/* Streak-pille: kun vist hvis vanen er holdt mindst én dag i træk. */}
+        {streak > 0 && (
+          <span
+            className={
+              "flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold " +
+              pilleFarve
+            }
+            style={pilleGlow}
+          >
+            🔥 {streak}
+          </span>
+        )}
 
         {/* Lille cirkel til højre der viser status: flueben hvis klaret. */}
         <span
