@@ -2,14 +2,14 @@ import { useState, type ReactNode } from "react";
 import { useLocalStorage } from "./useLocalStorage";
 import { STANDARD_VANER } from "./vaner";
 import type { Afkrydsninger, Indstillinger } from "./types";
-import { datoForskudt, datoLang } from "./datoer";
+import { datoForskudt, datoLang, ugensDatoer, ugedagKort } from "./datoer";
 import { VaneKort } from "./VaneKort";
 import { beregnSamledePoint, beregnLevel } from "./point";
 import { PointOversigt } from "./PointOversigt";
 import { findTitel } from "./titler";
 import { TitelBanner } from "./TitelBanner";
 import { RedigerVaner } from "./RedigerVaner";
-import { samletStreak, vaneStreak } from "./streaks";
+import { samletStreak, vaneStreak, erGroenDag } from "./streaks";
 import { StreakBanner } from "./StreakBanner";
 import { DatoHjaelper } from "./DatoHjaelper";
 
@@ -77,6 +77,15 @@ export default function App() {
   // Den samlede dags-streak (grønne dage i træk), regnet fra den valgte dag.
   const streak = samletStreak(vaner, afkrydsninger, dato, taerskel);
 
+  // Ugens 7 dage (mandag..søndag) til uge-sporet i streak-kortet.
+  const ugensDage = ugensDatoer(dato).map((d) => ({
+    dato: d,
+    label: ugedagKort(d),
+    groen: erGroenDag(vaner, afkrydsninger, d, taerskel),
+    erIDag: d === dato,
+    erFremtid: d > dato,
+  }));
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 p-6">
       <div className="mx-auto max-w-md flex flex-col gap-6">
@@ -125,6 +134,7 @@ export default function App() {
               taerskel={taerskel}
               antalVaner={vaner.length}
               gjortIDag={antalGjort}
+              ugensDage={ugensDage}
               onTaerskel={saetTaerskel}
             />
 

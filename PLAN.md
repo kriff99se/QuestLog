@@ -96,6 +96,9 @@ Ting vi har besluttet, mens vi byggede, som ikke stod i den oprindelige plan:
 - **Fase 4-testværktøj:** en linje nederst med ◀ dag / I dag / dag ▶ til at
   flytte "dagens dato" frem og tilbage, så streaks kan afprøves uden at vente.
   Forskydningen gemmes ikke.
+- **Streak-kortets design:** stort glødende tal + et uge-spor (mandag–søndag)
+  hvor grønne dage vises som flammer og i dag har en grøn ring. Tærskel-
+  indstillingen er skjult bag et lille tandhjul, så kortet ikke roder.
 
 ---
 
