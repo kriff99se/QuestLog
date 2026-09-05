@@ -226,8 +226,13 @@ mobil-layout.
   Spørger to gange med `window.confirm`, og sætter så alle data
   (vaner, afkrydsninger, indstillinger, todos) tilbage til startværdi.
 - ✅ **Mobil-layout:** afprøvet ved 390 px bredde. Rettelser: mindre
-  padding på mobil (`p-4 sm:p-6`), `overflow-x-hidden` på ydersiden så
+  padding på mobil (`p-4 sm:p-6`), `overflow-x-clip` på ydersiden så
   siden aldrig kan scrolles vandret, `flex-wrap` på testværktøjet og
   nulstil-linjen, og `min-w-0` + `break-words` på vane-navne og titlen,
   så lang tekst bryder om i stedet for at skubbe kortet ud over kanten.
   `<meta viewport>` var allerede på plads i `index.html`.
+- ✅ **Level-kortet klæber fast øverst.** På "I dag"-skærmen er point-/
+  level-kortet gjort `sticky top-0 z-20`, så man altid kan se sit level
+  og fremskridtsbjælken, også når man har scrollet langt ned i vane-listen.
+  (Derfor bruger ydersiden `overflow-x-clip` og ikke `-hidden` - `hidden`
+  ville slå `sticky` ihjel.)

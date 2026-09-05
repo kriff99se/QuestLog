@@ -172,8 +172,10 @@ export default function App() {
 
   return (
     // "p-4 sm:p-6": lidt luft på mobil, mere luft på større skærme.
-    // "overflow-x-hidden": siden må aldrig kunne scrolles vandret.
-    <div className="min-h-screen overflow-x-hidden bg-slate-900 text-slate-100 p-4 sm:p-6">
+    // "overflow-x-clip": siden må aldrig kunne scrolles vandret. Vi bruger
+    // "clip" og ikke "hidden", fordi "hidden" ville ødelægge "sticky"-kortet
+    // længere nede (level-kortet der klæber fast øverst).
+    <div className="min-h-screen overflow-x-clip bg-slate-900 text-slate-100 p-4 sm:p-6">
       <div className="mx-auto flex max-w-md flex-col gap-6">
         <header className="flex flex-col gap-1">
           <h1 className="text-3xl font-bold text-emerald-400">QuestLog</h1>
@@ -226,9 +228,15 @@ export default function App() {
           <>
             <TitelBanner titel={titel} level={levelInfo.level} />
 
-            {/* Point-kortet. Vi lægger et lag udenom ("relative"), så det
-                svævende "+X" kan placeres oven på kortets øverste hjørne. */}
-            <div className="relative">
+            {/* Point-kortet.
+                - "sticky top-0" får kortet til at "klæbe" fast øverst på
+                  skærmen, så man altid kan se sit level, også når man har
+                  scrollet langt ned i vane-listen.
+                - "z-20" lægger det oven på de vane-kort, der scroller forbi.
+                - "shadow-md" giver en lille skygge, så det tydeligt ligger
+                  oven på indholdet.
+                Laget her fungerer også som anker for det svævende "+X". */}
+            <div className="sticky top-0 z-20 rounded-xl shadow-md shadow-slate-950/40">
               <PointOversigt samledePoint={samledePoint} levelInfo={levelInfo} />
 
               {flyvendePoint && (
