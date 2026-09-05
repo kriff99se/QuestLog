@@ -1,4 +1,4 @@
-import type { Vane, Afkrydsninger } from "./types";
+import type { Vane, Afkrydsninger, Todo } from "./types";
 
 // Her regner vi point og level ud. Bemærk: hverken point eller level
 // bliver gemt nogen steder. Vi regner dem altid ud fra vanerne og
@@ -36,6 +36,19 @@ export function beregnSamledePoint(
   }
 
   return sum;
+}
+
+// Hver opgave på to-do listen, der er krydset af som færdig, giver
+// dette antal point. Sat lavt (samme som den nemmeste vane), så opgaver
+// er en lille bonus - vanerne er stadig den store kilde til point.
+export const POINT_PR_OPGAVE = 5;
+
+// Læg point sammen for alle opgaver, der er markeret som færdige.
+// Bemærk: ligesom med vaner regnes det ud fra listen, som den ser ud
+// lige nu. Sletter du en færdig opgave, forsvinder dens point igen.
+export function beregnOpgavePoint(todos: Todo[]): number {
+  const antalFaerdige = todos.filter((todo) => todo.faerdig).length;
+  return antalFaerdige * POINT_PR_OPGAVE;
 }
 
 // Alt hvad vi vil vise om level, samlet ét sted.

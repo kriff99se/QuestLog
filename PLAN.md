@@ -57,7 +57,9 @@ Maks. på en dag: 160 point.
 - `todos` — liste med `{ id, tekst, faerdig }` *(findes fra Fase 5)*
 
 Point, levels og streaks **gemmes ikke** — de beregnes altid ud fra data ovenfor,
-så de aldrig kan komme i utakt.
+så de aldrig kan komme i utakt. Point kommer nu fra to steder: vane-afkrydsninger
++ færdige to-do opgaver (5 point pr. færdig opgave, `POINT_PR_OPGAVE` i
+`src/point.ts`).
 
 To bevidste forenklinger:
 - Ændrer du en vanes point, gælder det også bagudrettet (scoren regnes ud fra de
@@ -105,10 +107,21 @@ Ting vi har besluttet, mens vi byggede, som ikke stod i den oprindelige plan:
   `src/VaneKort.tsx`.
 - **Fase 5 – To-do:** en tredje fane "To-do" ved siden af "I dag" og "Rediger
   vaner". Ny opgave tilføjes med knap eller Enter-tasten; tom tekst ignoreres.
-  Klaret opgave får streg over teksten. Sletning sker med det samme (ingen
-  "er du sikker?"-boks, fordi en opgave er hurtig at skrive igen — modsat en
-  vane). Opgaver ligger i den rækkefølge de blev skrevet. Gemmes som `todos`
-  i localStorage. Komponenten er `src/TodoListe.tsx`.
+  Opgaver ligger i den rækkefølge de blev skrevet. Gemmes som `todos` i
+  localStorage. Komponenten er `src/TodoListe.tsx`.
+- **Fase 5 – opgaver giver point (valgt "mulighed A").** Hver færdig opgave
+  giver 5 point (`POINT_PR_OPGAVE`), samme som den nemmeste vane, så opgaver
+  er en bonus og ikke den store pointkilde. Vi overvejede også et eget
+  point-felt pr. opgave (mulighed B), men droppede det for at holde det simpelt.
+  Point regnes ud fra listen som den ser ud nu — sletter man en færdig opgave,
+  ryger de 5 point med (samme regel som at slette en vane). Det er med vilje:
+  det gør point-farming mindre attraktivt.
+- **Fase 5 – "Færdige"-folder.** To-do siden er delt i "Skal gøres" øverst og
+  en foldbar "Færdige (N) · P point"-folder nederst. Folderen starter lukket,
+  og indholdet tegnes først når man folder den ud — så tusindvis af gamle
+  opgaver hverken fylder skærmen eller sløver siden. Sletning af en *færdig*
+  opgave bekræftes med en `window.confirm` (fordi det koster point); opgaver
+  der ikke er klaret, slettes uden at spørge.
 
 ---
 
@@ -156,6 +169,8 @@ Skærm hvor du kan tilføje, omdøbe, skifte ikon, skifte point og slette vaner.
 ### Fase 5 – To-do liste ✅
 Tilføj opgave, marker som færdig, slet opgave. Gemmes i localStorage.
 Egen fane "To-do". Tilføj med knap eller Enter. Klaret opgave får streg over.
+Hver færdig opgave giver 5 point. Færdige opgaver ligger i en foldbar folder,
+der starter lukket.
 
 **Virker når:** opgaver og deres status overlever en genindlæsning.
 

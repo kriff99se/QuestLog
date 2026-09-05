@@ -4,7 +4,7 @@ import { STANDARD_VANER } from "./vaner";
 import type { Afkrydsninger, Indstillinger, Todo } from "./types";
 import { datoForskudt, datoLang, ugensDatoer, ugedagKort } from "./datoer";
 import { VaneKort } from "./VaneKort";
-import { beregnSamledePoint, beregnLevel } from "./point";
+import { beregnSamledePoint, beregnOpgavePoint, beregnLevel } from "./point";
 import { PointOversigt } from "./PointOversigt";
 import { findTitel } from "./titler";
 import { TitelBanner } from "./TitelBanner";
@@ -73,8 +73,10 @@ export default function App() {
   // vaner er slettet), klemmer vi den ned, så en grøn dag stadig er mulig.
   const taerskel = Math.max(1, Math.min(indstillinger.taerskel, vaner.length));
 
-  // Samlede point og level. Regnes ud fra alle afkrydsninger nogensinde.
-  const samledePoint = beregnSamledePoint(vaner, afkrydsninger);
+  // Samlede point og level. Point kommer fra to steder:
+  // alle vane-afkrydsninger nogensinde + alle færdige to-do opgaver.
+  const samledePoint =
+    beregnSamledePoint(vaner, afkrydsninger) + beregnOpgavePoint(todos);
   const levelInfo = beregnLevel(samledePoint);
   const titel = findTitel(levelInfo.level);
 
