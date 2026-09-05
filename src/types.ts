@@ -21,6 +21,13 @@ export type Afkrydsninger = {
   };
 };
 
+// En enkelt to-do (opgave på huskelisten).
+export type Todo = {
+  id: string; // fast tekst vi kender opgaven på, fx "todo-1788630943107"
+  tekst: string; // det brugeren skrev, fx "Køb mælk"
+  faerdig: boolean; // er opgaven krydset af som klaret?
+};
+
 // Appens indstillinger.
 export type Indstillinger = {
   // Hvor mange vaner der skal krydses af på en dag,

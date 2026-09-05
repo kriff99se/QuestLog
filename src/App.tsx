@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { useLocalStorage } from "./useLocalStorage";
 import { STANDARD_VANER } from "./vaner";
-import type { Afkrydsninger, Indstillinger } from "./types";
+import type { Afkrydsninger, Indstillinger, Todo } from "./types";
 import { datoForskudt, datoLang, ugensDatoer, ugedagKort } from "./datoer";
 import { VaneKort } from "./VaneKort";
 import { beregnSamledePoint, beregnLevel } from "./point";
@@ -12,6 +12,7 @@ import { RedigerVaner } from "./RedigerVaner";
 import { samletStreak, vaneStreak, erGroenDag } from "./streaks";
 import { StreakBanner } from "./StreakBanner";
 import { DatoHjaelper } from "./DatoHjaelper";
+import { TodoListe } from "./TodoListe";
 
 export default function App() {
   // Vanerne. Første gang appen åbnes, bruges standardlisten med de 10 vaner.
@@ -29,8 +30,11 @@ export default function App() {
     { taerskel: 7 },
   );
 
+  // Alle opgaver på to-do listen. Starter som en tom liste.
+  const [todos, setTodos] = useLocalStorage<Todo[]>("todos", []);
+
   // Hvilken skærm vi kigger på. Gemmes IKKE - appen starter altid på "i-dag".
-  const [visning, setVisning] = useState<"i-dag" | "rediger">("i-dag");
+  const [visning, setVisning] = useState<"i-dag" | "rediger" | "todo">("i-dag");
 
   // Testværktøj: hvor mange dage vi har "rejst" væk fra den rigtige dag.
   // 0 = i dag. Gemmes ikke.
@@ -121,9 +125,15 @@ export default function App() {
           >
             Rediger vaner
           </FaneKnap>
+          <FaneKnap
+            aktiv={visning === "todo"}
+            onClick={() => setVisning("todo")}
+          >
+            To-do
+          </FaneKnap>
         </nav>
 
-        {visning === "i-dag" ? (
+        {visning === "i-dag" && (
           <>
             <TitelBanner titel={titel} level={levelInfo.level} />
 
@@ -150,8 +160,14 @@ export default function App() {
               ))}
             </ul>
           </>
-        ) : (
+        )}
+
+        {visning === "rediger" && (
           <RedigerVaner vaner={vaner} setVaner={setVaner} />
+        )}
+
+        {visning === "todo" && (
+          <TodoListe todos={todos} setTodos={setTodos} />
         )}
 
         <DatoHjaelper

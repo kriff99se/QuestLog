@@ -10,7 +10,7 @@ hver fase laves en git-commit, så vi altid kan gå tilbage til noget der virked
 
 ---
 
-## Status (opdateret 5. september 2026)
+## Status (opdateret 5. september 2026, Fase 5 færdig)
 
 | Fase | Status |
 |---|---|
@@ -19,7 +19,7 @@ hver fase laves en git-commit, så vi altid kan gå tilbage til noget der virked
 | Fase 2 – Point og levels (+ level-titler) | ✅ Færdig |
 | Fase 3 – Rediger vaner i appen | ✅ Færdig |
 | Fase 4 – Streaks og tærskel | ✅ Færdig |
-| Fase 5 – To-do liste | ⬜ Ikke lavet endnu |
+| Fase 5 – To-do liste | ✅ Færdig |
 | Fase 6 – Animationer | ⬜ Ikke lavet endnu |
 | Fase 7 – Finpudsning | ⬜ Ikke lavet endnu |
 
@@ -54,7 +54,7 @@ Maks. på en dag: 160 point.
 - `vaner` — liste med `{ id, navn, ikon, point }`, startet fra de 10 standardvaner ovenfor *(findes)*
 - `afkrydsninger` — ét objekt pr. dato, fx `"2026-09-05" -> { fitness: true, soevn: true }` *(findes)*
 - `indstillinger` — bl.a. `taerskel` (standard 7 ud af 10) *(findes)*
-- `todos` — liste med `{ id, tekst, faerdig }` *(kommer i Fase 5)*
+- `todos` — liste med `{ id, tekst, faerdig }` *(findes fra Fase 5)*
 
 Point, levels og streaks **gemmes ikke** — de beregnes altid ud fra data ovenfor,
 så de aldrig kan komme i utakt.
@@ -103,6 +103,12 @@ Ting vi har besluttet, mens vi byggede, som ikke stod i den oprindelige plan:
   afrundet "pille" ved afkrydsnings-cirklen. Farven bliver varmere med længden:
   gul under 7 dage, orange fra 7, rød med glød fra 30. Grænserne står øverst i
   `src/VaneKort.tsx`.
+- **Fase 5 – To-do:** en tredje fane "To-do" ved siden af "I dag" og "Rediger
+  vaner". Ny opgave tilføjes med knap eller Enter-tasten; tom tekst ignoreres.
+  Klaret opgave får streg over teksten. Sletning sker med det samme (ingen
+  "er du sikker?"-boks, fordi en opgave er hurtig at skrive igen — modsat en
+  vane). Opgaver ligger i den rækkefølge de blev skrevet. Gemmes som `todos`
+  i localStorage. Komponenten er `src/TodoListe.tsx`.
 
 ---
 
@@ -147,8 +153,9 @@ Skærm hvor du kan tilføje, omdøbe, skifte ikon, skifte point og slette vaner.
 
 **Virker når:** grønne dage i træk tæller op; en manglet dag nulstiller.
 
-### Fase 5 – To-do liste ⬜
+### Fase 5 – To-do liste ✅
 Tilføj opgave, marker som færdig, slet opgave. Gemmes i localStorage.
+Egen fane "To-do". Tilføj med knap eller Enter. Klaret opgave får streg over.
 
 **Virker når:** opgaver og deres status overlever en genindlæsning.
 
