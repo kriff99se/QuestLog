@@ -210,8 +210,19 @@ Detaljer:
   værktøjet, springes point-/level-animationer over, så man ikke får en
   fejring for point på en anden dag.
 
-### Fase 7 – Finpudsning (valgfri) ⬜
+### Fase 7 – Finpudsning ⬜ (i gang)
 Simpel historik-/kalendervisning. "Nulstil alt"-knap med bekræftelse. Tjek
 mobil-layout.
 
 **Virker når:** appen er rar at bruge dagligt.
+
+- ✅ **Historik-fane:** en ny fane "Historik" (`Historik.tsx`) med en
+  måneds-kalender. Hver dag er farvet: grøn = nåede tærsklen, gul = noget
+  gjort men ikke nok, grå = ingenting. Pile skifter måned, og der er en
+  lille tæller ("X grønne dage i September 2026") + en farve-forklaring.
+  Nye dato-hjælpere i `datoer.ts`: `maanedensDatoer`, `tommeFoerMaaned`,
+  `maanedNavn`, `dagIMaaned`.
+- ✅ **"Nulstil alt"-knap:** en farezone nederst i appen (`NulstilAlt.tsx`).
+  Spørger to gange med `window.confirm`, og sætter så alle data
+  (vaner, afkrydsninger, indstillinger, todos) tilbage til startværdi.
+- ⬜ **Mobil-layout:** mangler.

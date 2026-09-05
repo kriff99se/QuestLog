@@ -64,6 +64,41 @@ export function ugedagKort(iso: string): string {
   return tekst.replace(".", "").slice(0, 2);
 }
 
+// Alle datoer i en måned som "2026-09-05"-tekster.
+// maaned0 er 0-baseret (januar = 0), ligesom i JavaScripts Date.
+export function maanedensDatoer(aar: number, maaned0: number): string[] {
+  const datoer: string[] = [];
+  const d = new Date(aar, maaned0, 1);
+  // Bliv i måneden, indtil Date selv ruller over til den næste.
+  while (d.getMonth() === maaned0) {
+    datoer.push(tilISO(d));
+    d.setDate(d.getDate() + 1);
+  }
+  return datoer;
+}
+
+// Hvor mange tomme felter der skal stå før den 1. i måneden, når ugen
+// starter om mandag (mandag = 0 tomme, tirsdag = 1 ... søndag = 6).
+export function tommeFoerMaaned(aar: number, maaned0: number): number {
+  // getDay(): søndag = 0, mandag = 1 ... lørdag = 6.
+  const foersteUgedag = new Date(aar, maaned0, 1).getDay();
+  return (foersteUgedag + 6) % 7;
+}
+
+// Måned + år skrevet pænt med stort forbogstav, fx "September 2026".
+export function maanedNavn(aar: number, maaned0: number): string {
+  const tekst = new Date(aar, maaned0, 1).toLocaleDateString("da-DK", {
+    month: "long",
+    year: "numeric",
+  });
+  return tekst.charAt(0).toUpperCase() + tekst.slice(1);
+}
+
+// Dagens tal ud af en "2026-09-05"-dato, fx 5.
+export function dagIMaaned(iso: string): number {
+  return Number(iso.split("-")[2]);
+}
+
 // En "2026-09-05"-dato skrevet pænt på dansk,
 // fx "fredag den 5. september 2026".
 export function datoLang(iso: string): string {

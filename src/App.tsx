@@ -14,6 +14,8 @@ import { StreakBanner } from "./StreakBanner";
 import { DatoHjaelper } from "./DatoHjaelper";
 import { TodoListe } from "./TodoListe";
 import { Fejring } from "./Fejring";
+import { Historik } from "./Historik";
+import { NulstilAlt } from "./NulstilAlt";
 
 export default function App() {
   // Vanerne. Første gang appen åbnes, bruges standardlisten med de 10 vaner.
@@ -35,7 +37,9 @@ export default function App() {
   const [todos, setTodos] = useLocalStorage<Todo[]>("todos", []);
 
   // Hvilken skærm vi kigger på. Gemmes IKKE - appen starter altid på "i-dag".
-  const [visning, setVisning] = useState<"i-dag" | "rediger" | "todo">("i-dag");
+  const [visning, setVisning] = useState<
+    "i-dag" | "rediger" | "todo" | "historik"
+  >("i-dag");
 
   // Testværktøj: hvor mange dage vi har "rejst" væk fra den rigtige dag.
   // 0 = i dag. Gemmes ikke.
@@ -59,6 +63,17 @@ export default function App() {
         },
       };
     });
+  }
+
+  // Sletter ALT og starter forfra. NulstilAlt har allerede spurgt to gange,
+  // så her gør vi bare rent: alle data tilbage til deres startværdi.
+  function nulstilAlt() {
+    setVaner(STANDARD_VANER);
+    setAfkrydsninger({});
+    setIndstillinger({ taerskel: 7 });
+    setTodos([]);
+    setDatoForskydning(0);
+    setVisning("i-dag");
   }
 
   // Sæt tærsklen, men hold den mellem 1 og antallet af vaner.
@@ -176,8 +191,9 @@ export default function App() {
           </p>
         )}
 
-        {/* Menu til at skifte mellem de to skærme. */}
-        <nav className="flex gap-2">
+        {/* Menu til at skifte mellem skærmene. "flex-wrap" lader knapperne
+            bryde om på en ny linje, hvis der ikke er plads (fx på mobil). */}
+        <nav className="flex flex-wrap gap-2">
           <FaneKnap
             aktiv={visning === "i-dag"}
             onClick={() => setVisning("i-dag")}
@@ -195,6 +211,12 @@ export default function App() {
             onClick={() => setVisning("todo")}
           >
             To-do
+          </FaneKnap>
+          <FaneKnap
+            aktiv={visning === "historik"}
+            onClick={() => setVisning("historik")}
+          >
+            Historik
           </FaneKnap>
         </nav>
 
@@ -250,10 +272,21 @@ export default function App() {
           <TodoListe todos={todos} setTodos={setTodos} />
         )}
 
+        {visning === "historik" && (
+          <Historik
+            vaner={vaner}
+            afkrydsninger={afkrydsninger}
+            taerskel={taerskel}
+            iDag={dato}
+          />
+        )}
+
         <DatoHjaelper
           forskydning={datoForskydning}
           onSkift={setDatoForskydning}
         />
+
+        <NulstilAlt onNulstil={nulstilAlt} />
       </div>
 
       {/* Fejringen ligger uden for midterspalten, så den kan dække hele skærmen. */}
