@@ -20,6 +20,7 @@ import { DatoHjaelper } from "./DatoHjaelper";
 import { TodoListe } from "./TodoListe";
 import { Fejring } from "./Fejring";
 import { Historik } from "./Historik";
+import { Backup } from "./Backup";
 import { NulstilAlt } from "./NulstilAlt";
 
 export default function App() {
@@ -316,6 +317,8 @@ export default function App() {
           forskydning={datoForskydning}
           onSkift={setDatoForskydning}
         />
+
+        <Backup />
 
         <NulstilAlt onNulstil={nulstilAlt} />
       </div>

@@ -265,7 +265,20 @@ Appen kan nu lægges på telefonens hjemmeskærm og virke offline.
   hvert push til `main`. Pages er sat til "GitHub Actions" som kilde.
 - **Bemærk:** telefon-versionen (kriff99se.github.io) og den lokale version
   (localhost) er to adskilte "kasser" i browseren - data deles ikke mellem
-  dem. Derfor bør vi stadig lave en backup-funktion (næste oplagte skridt).
+  dem.
+
+### Ekstra: sikkerhedskopi (backup) af data
+
+Fordi data kun lever ét sted (den browser / telefon), er der to knapper
+nederst i appen (`src/Backup.tsx`):
+
+- **Gem backup:** samler `vaner`, `afkrydsninger`, `indstillinger` og `todos`
+  i én JSON-fil (`questlog-backup-ÅÅÅÅ-MM-DD.json`). På telefon bruges "del"-
+  arket (`navigator.share` med fil), så man kan gemme i Filer / sende til sig
+  selv; på computer et almindeligt download-link.
+- **Indlæs backup:** vælg en fil → bekræft ("alt nuværende data erstattes")
+  → filens indhold skrives til localStorage → siden genindlæser.
+- Testet frem og tilbage: eksport → slet data → import → alt korrekt gendannet.
 
 ### Ekstra: penge sparet pr. vane (efter Fase 7)
 
