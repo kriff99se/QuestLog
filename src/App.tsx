@@ -9,7 +9,7 @@ import { findTitel } from "./titler";
 import { TitelBanner } from "./TitelBanner";
 
 export default function App() {
-  // Vanerne. Første gang appen åbnes, bruges standardlisten med de 9 vaner.
+  // Vanerne. Første gang appen åbnes, bruges standardlisten med de 10 vaner.
   // (At kunne redigere vanerne kommer i Fase 3.)
   const [vaner] = useLocalStorage("vaner", STANDARD_VANER);
 

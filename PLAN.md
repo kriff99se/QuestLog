@@ -10,7 +10,7 @@ hver fase laves en git-commit, så vi altid kan gå tilbage til noget der virked
 
 ---
 
-## De 9 vaner
+## De 10 vaner
 
 Nemme vaner giver færrest point, svære giver flest. Point er multipla af 5, så
 det er nemt at regne i hovedet. Fra Fase 3 kan vanerne redigeres i appen.
@@ -23,11 +23,12 @@ det er nemt at regne i hovedet. Fra Fase 3 kan vanerne redigeres i appen.
 | 8 timers søvn | mellem | 15 |
 | Ingen skærm 30 min før sengetid | mellem | 15 |
 | Kode 30 minutter | mellem | 15 |
+| Sauna | mellem | 15 |
 | Sund kost | svær | 20 |
 | Fitness | svær | 25 |
 | Ingen snus | svær | 25 |
 
-Maks. på en dag: 145 point.
+Maks. på en dag: 160 point.
 
 ---
 
@@ -56,7 +57,7 @@ Vite + React + TS + Tailwind + Framer Motion sat op. Simpel forside med app-navn
 **Virker når:** `npm run dev` viser en side med virkende Tailwind-styling.
 
 ### Fase 1 – Vaner og afkrydsning for i dag
-De 9 vaner lægges ind i localStorage første gang. Vis dagens dato og en liste med
+De 10 vaner lægges ind i localStorage første gang. Vis dagens dato og en liste med
 vaner; klik skifter mellem gjort / ikke gjort. Afkrydsninger gemmes pr. dato.
 
 **Virker når:** du krydser vaner af, genindlæser siden, og de er der stadig.
@@ -79,7 +80,7 @@ Skærm hvor du kan tilføje, omdøbe, skifte ikon, skifte point og slette vaner.
 ### Fase 4 – Streaks og "godt nok"-tærskel
 - Samlet dags-streak: antal grønne dage i træk (en grøn dag = du rammer tærsklen).
 - Streak pr. vane: flamme-tal ved hver vane = dage i træk den vane er holdt.
-- Tærskel er en indstilling, standard 6 ud af 9, kan ændres.
+- Tærskel er en indstilling, standard 7 ud af 10, kan ændres.
 - Hjælpe-knap til at skifte "dagens dato" frem/tilbage, så streaks kan testes.
 
 **Virker når:** grønne dage i træk tæller op; en manglet dag nulstiller.
