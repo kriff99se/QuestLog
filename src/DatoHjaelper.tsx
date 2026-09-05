@@ -10,7 +10,7 @@ type Props = {
 // Det ændrer IKKE rigtige data - kun hvilken dato appen viser og krydser af.
 export function DatoHjaelper({ forskydning, onSkift }: Props) {
   return (
-    <div className="flex items-center justify-between rounded-xl border border-dashed border-slate-700 p-3 text-sm text-slate-400">
+    <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-dashed border-slate-700 p-3 text-sm text-slate-400">
       <span>🛠️ Testværktøj: dagens dato</span>
       <div className="flex items-center gap-1">
         <Knap onClick={() => onSkift(forskydning - 1)}>◀ dag</Knap>

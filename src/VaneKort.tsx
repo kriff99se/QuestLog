@@ -51,10 +51,12 @@ export function VaneKort({ vane, gjort, streak, onSkift }: Props) {
             : "border-slate-700 bg-slate-800 hover:border-slate-600")
         }
       >
-        <span className="text-2xl">{vane.ikon}</span>
+        <span className="flex-none text-2xl">{vane.ikon}</span>
 
-        <span className="flex-1">
-          <span className="block font-medium">{vane.navn}</span>
+        {/* "min-w-0" lader dette felt skrumpe, så lange vane-navne bryder
+            om i stedet for at skubbe kortet ud over skærmkanten. */}
+        <span className="min-w-0 flex-1">
+          <span className="block font-medium break-words">{vane.navn}</span>
           <span className="block text-sm text-slate-400">{vane.point} point</span>
         </span>
 
@@ -62,7 +64,7 @@ export function VaneKort({ vane, gjort, streak, onSkift }: Props) {
         {streak > 0 && (
           <span
             className={
-              "flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold " +
+              "flex flex-none items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold " +
               pilleFarve
             }
             style={pilleGlow}
@@ -75,7 +77,7 @@ export function VaneKort({ vane, gjort, streak, onSkift }: Props) {
             "animer-pop" spiller en kort skala-animation ved hvert klik. */}
         <span
           className={
-            "flex h-6 w-6 items-center justify-center rounded-full border text-sm " +
+            "flex h-6 w-6 flex-none items-center justify-center rounded-full border text-sm " +
             (popper ? "animer-pop " : "") +
             (gjort
               ? "border-emerald-500 bg-emerald-500 text-slate-900"

@@ -19,7 +19,7 @@ export function NulstilAlt({ onNulstil }: Props) {
   }
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-red-500/30 p-3 text-sm">
+    <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-red-500/30 p-3 text-sm">
       <span className="text-slate-400">Slet alt og start forfra</span>
       <button
         type="button"

@@ -11,7 +11,7 @@ hver fase laves en git-commit, så vi altid kan gå tilbage til noget der virked
 
 ---
 
-## Status (opdateret 5. september 2026, Fase 6 færdig)
+## Status (opdateret 5. september 2026, alle faser færdige)
 
 | Fase | Status |
 |---|---|
@@ -22,7 +22,7 @@ hver fase laves en git-commit, så vi altid kan gå tilbage til noget der virked
 | Fase 4 – Streaks og tærskel | ✅ Færdig |
 | Fase 5 – To-do liste | ✅ Færdig |
 | Fase 6 – Animationer | ✅ Færdig |
-| Fase 7 – Finpudsning | ⬜ Ikke lavet endnu |
+| Fase 7 – Finpudsning | ✅ Færdig |
 
 Alt er skubbet til GitHub (`origin/main`).
 
@@ -210,7 +210,7 @@ Detaljer:
   værktøjet, springes point-/level-animationer over, så man ikke får en
   fejring for point på en anden dag.
 
-### Fase 7 – Finpudsning ⬜ (i gang)
+### Fase 7 – Finpudsning ✅
 Simpel historik-/kalendervisning. "Nulstil alt"-knap med bekræftelse. Tjek
 mobil-layout.
 
@@ -225,4 +225,9 @@ mobil-layout.
 - ✅ **"Nulstil alt"-knap:** en farezone nederst i appen (`NulstilAlt.tsx`).
   Spørger to gange med `window.confirm`, og sætter så alle data
   (vaner, afkrydsninger, indstillinger, todos) tilbage til startværdi.
-- ⬜ **Mobil-layout:** mangler.
+- ✅ **Mobil-layout:** afprøvet ved 390 px bredde. Rettelser: mindre
+  padding på mobil (`p-4 sm:p-6`), `overflow-x-hidden` på ydersiden så
+  siden aldrig kan scrolles vandret, `flex-wrap` på testværktøjet og
+  nulstil-linjen, og `min-w-0` + `break-words` på vane-navne og titlen,
+  så lang tekst bryder om i stedet for at skubbe kortet ud over kanten.
+  `<meta viewport>` var allerede på plads i `index.html`.

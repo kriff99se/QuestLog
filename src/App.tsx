@@ -171,8 +171,10 @@ export default function App() {
   }));
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 p-6">
-      <div className="mx-auto max-w-md flex flex-col gap-6">
+    // "p-4 sm:p-6": lidt luft på mobil, mere luft på større skærme.
+    // "overflow-x-hidden": siden må aldrig kunne scrolles vandret.
+    <div className="min-h-screen overflow-x-hidden bg-slate-900 text-slate-100 p-4 sm:p-6">
+      <div className="mx-auto flex max-w-md flex-col gap-6">
         <header className="flex flex-col gap-1">
           <h1 className="text-3xl font-bold text-emerald-400">QuestLog</h1>
           <p className="text-slate-400 first-letter:uppercase">

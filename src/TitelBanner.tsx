@@ -15,17 +15,19 @@ export function TitelBanner({ titel, level }: Props) {
         <img
           src={titel.billede}
           alt={titel.navn}
-          className="h-16 w-16 rounded-lg object-cover"
+          className="h-16 w-16 flex-none rounded-lg object-cover"
         />
       ) : (
-        <span className="text-5xl">{titel.emoji}</span>
+        <span className="flex-none text-5xl">{titel.emoji}</span>
       )}
 
-      <div className="flex flex-col">
+      <div className="flex min-w-0 flex-col">
         <span className="text-xs uppercase tracking-wide text-slate-500">
           Din titel
         </span>
-        <span className="text-xl font-bold text-emerald-400">{titel.navn}</span>
+        <span className="text-xl font-bold break-words text-emerald-400">
+          {titel.navn}
+        </span>
         <span className="text-sm text-slate-400">Level {level}</span>
       </div>
     </div>

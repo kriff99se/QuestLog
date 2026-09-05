@@ -37,7 +37,7 @@ export function StreakBanner({
   return (
     <div
       className={
-        "flex flex-col gap-4 rounded-2xl border bg-slate-800 p-5 " +
+        "flex flex-col gap-4 rounded-2xl border bg-slate-800 p-4 sm:p-5 " +
         (harStreak ? "border-orange-500/40" : "border-slate-700")
       }
       // Blød varm glød om kortet, når man har en streak i gang.
@@ -69,7 +69,7 @@ export function StreakBanner({
       </div>
 
       {/* Uge-sporet: mandag til søndag. */}
-      <div className="flex justify-between">
+      <div className="flex justify-between gap-1">
         {ugensDage.map((dag) => (
           <div
             key={dag.dato}
