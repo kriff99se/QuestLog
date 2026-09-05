@@ -5,6 +5,8 @@ En app hvor gode daglige vaner giver point, levels og streaks, plus en to-do lis
 **Teknologi:** React + TypeScript + Vite + Tailwind. Animationer laves med ren
 CSS (planen sagde Framer Motion, men det virkede ikke i denne opsætning - se
 Fase 6). Data gemmes i browserens `localStorage` (ingen server, ingen database).
+Appen er en **PWA** (kan lægges på hjemmeskærmen, virker offline) og hostes på
+**GitHub Pages**: <https://kriff99se.github.io/QuestLog/>
 
 Vi bygger i faser. Hver fase slutter med en app der kan køres og bruges. Efter
 hver fase laves en git-commit, så vi altid kan gå tilbage til noget der virkede.
@@ -244,6 +246,26 @@ mobil-layout.
   og fremskridtsbjælken, også når man har scrollet langt ned i vane-listen.
   (Derfor bruger ydersiden `overflow-x-clip` og ikke `-hidden` - `hidden`
   ville slå `sticky` ihjel.)
+
+### Ekstra: PWA + hosting på GitHub Pages (efter Fase 7)
+
+Appen kan nu lægges på telefonens hjemmeskærm og virke offline.
+
+- `vite-plugin-pwa` laver et manifest + en service worker (offline-cache).
+  `registerType: "autoUpdate"` = ny version hentes selv, når der er net.
+- Ikoner ligger i `public/`: `icon-192.png`, `icon-512.png`,
+  `apple-touch-icon.png` (180 px, til iOS), `favicon.png`. Tegnet som et
+  grønt flueben på mørk baggrund (headless Chrome fra en lille SVG).
+- `index.html` har fået `theme-color` + `apple-mobile-web-app-*`-tags.
+  Statuslinje-stil er `default`, så indholdet ikke ryger op under uret.
+- **`vite.config.ts` har `base: "/QuestLog/"`**, fordi Pages serverer fra
+  `.../QuestLog/`. Lokalt kører `npm run dev` derfor nu på
+  `http://localhost:5173/QuestLog/` (ikke længere `/`).
+- Hosting: `.github/workflows/deploy.yml` bygger og deployer til Pages ved
+  hvert push til `main`. Pages er sat til "GitHub Actions" som kilde.
+- **Bemærk:** telefon-versionen (kriff99se.github.io) og den lokale version
+  (localhost) er to adskilte "kasser" i browseren - data deles ikke mellem
+  dem. Derfor bør vi stadig lave en backup-funktion (næste oplagte skridt).
 
 ### Ekstra: penge sparet pr. vane (efter Fase 7)
 
