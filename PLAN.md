@@ -11,7 +11,7 @@ hver fase laves en git-commit, så vi altid kan gå tilbage til noget der virked
 
 ---
 
-## Status (opdateret 5. september 2026, alle faser færdige)
+## Status (opdateret 5. september 2026 — alle faser færdige + ekstra features)
 
 | Fase | Status |
 |---|---|
@@ -24,7 +24,12 @@ hver fase laves en git-commit, så vi altid kan gå tilbage til noget der virked
 | Fase 6 – Animationer | ✅ Færdig |
 | Fase 7 – Finpudsning | ✅ Færdig |
 
-Alt er skubbet til GitHub (`origin/main`).
+Ekstra features bygget efter planen:
+- Level-/point-kortet klæber fast øverst på skærmen ved scroll.
+- Valgfrit "sparer kr/dag"-felt pr. vane med en 💰-visning ("Ingen snus" =
+  60 kr/dag). Gamle "Ingen snus"-vaner får feltet sat automatisk.
+
+Alt er skubbet til GitHub (`origin/main`). Seneste commit: `668aa4b`.
 
 ---
 
@@ -52,7 +57,9 @@ Maks. på en dag: 160 point.
 
 ## Datamodel i localStorage
 
-- `vaner` — liste med `{ id, navn, ikon, point }`, startet fra de 10 standardvaner ovenfor *(findes)*
+- `vaner` — liste med `{ id, navn, ikon, point, sparerPrDag? }`, startet fra de
+  10 standardvaner ovenfor. `sparerPrDag` er valgfri (kr sparet pr. dag vanen
+  holdes) *(findes)*
 - `afkrydsninger` — ét objekt pr. dato, fx `"2026-09-05" -> { fitness: true, soevn: true }` *(findes)*
 - `indstillinger` — bl.a. `taerskel` (standard 7 ud af 10) *(findes)*
 - `todos` — liste med `{ id, tekst, faerdig }` *(findes fra Fase 5)*
@@ -88,8 +95,9 @@ Ting vi har besluttet, mens vi byggede, som ikke stod i den oprindelige plan:
 - **Ekstra vane: Sauna** (mellem, 15 point). Maks. på en dag steg fra 145 til
   160 point.
 - **Tærskel-standard ændret fra 6/9 til 7/10** vaner, fordi der nu er 10 vaner.
-- **Menu med to faner** ("I dag" / "Rediger vaner"). Hvilken fane man er på,
-  gemmes *ikke* — appen starter altid på "I dag".
+- **Menu med faner** — startede som "I dag" / "Rediger vaner", er undervejs
+  vokset til fire: "I dag", "Rediger vaner", "To-do", "Historik". Hvilken fane
+  man er på, gemmes *ikke* — appen starter altid på "I dag".
 - **Fase 3-detaljer:** sletning af en vane bekræftes med en "er du sikker?"-boks
   (`window.confirm`). Nye vaner får et id ud fra tidspunktet, fx
   `"vane-1788630943107"`.
@@ -253,3 +261,10 @@ holdes). "Ingen snus" har 60 kr/dag som standard i `STANDARD_VANER`.
 - `VaneKort` er skrevet lidt om: rammen/farven ligger nu på `<li>`, så
   penge-linjen kan ligge i samme kort som selve afkrydsningen (uden at
   have en `<button>` inde i en `<button>`).
+- **Engangs-opdatering (`App.tsx`):** "Ingen snus"-vaner gemt *før* penge-
+  funktionen mangler feltet `sparerPrDag`. En lille `useEffect` sætter det
+  til 60, hvis det aldrig har været sat — så besparelsen dukker op af sig
+  selv efter `git pull`, uden at man skal ind i "Rediger vaner". Har man
+  selv valgt et beløb (også 0), rører den det ikke. Verificeret på
+  `localhost:5173`: feltet blev fjernet, siden genindlæst, og feltet kom
+  automatisk tilbage som 60; 💰-linjen regnede rigtigt (1 dag × 60 = 60 kr).
