@@ -99,6 +99,10 @@ Ting vi har besluttet, mens vi byggede, som ikke stod i den oprindelige plan:
 - **Streak-kortets design:** stort glødende tal + et uge-spor (mandag–søndag)
   hvor grønne dage vises som flammer og i dag har en grøn ring. Tærskel-
   indstillingen er skjult bag et lille tandhjul, så kortet ikke roder.
+- **Vane-streakens design:** flamme-tallet på hvert vane-kort vises som en
+  afrundet "pille" ved afkrydsnings-cirklen. Farven bliver varmere med længden:
+  gul under 7 dage, orange fra 7, rød med glød fra 30. Grænserne står øverst i
+  `src/VaneKort.tsx`.
 
 ---
 
@@ -133,10 +137,13 @@ Skærm hvor du kan tilføje, omdøbe, skifte ikon, skifte point og slette vaner.
 ### Fase 4 – Streaks og "godt nok"-tærskel ✅
 - Samlet dags-streak: antal grønne dage i træk (en grøn dag = du rammer tærsklen).
   "I dag" tæller kun med, hvis dagen allerede er grøn; ellers tælles fra i går.
-- Streak pr. vane: flamme-tal ved hver vane = dage i træk den vane er holdt.
-- Tærskel er en indstilling, standard 7 ud af 10, kan ændres. (`indstillinger`
-  oprettes i localStorage her.)
-- Hjælpe-knap til at skifte "dagens dato" frem/tilbage, så streaks kan testes.
+  Vist som stort tal + uge-spor (mandag–søndag).
+- Streak pr. vane: flamme-pille ved hver vane = dage i træk den vane er holdt.
+  Samme "i dag"-regel som ovenfor. Pillens farve bliver varmere med længden.
+- Tærskel er en indstilling, standard 7 ud af 10, kan ændres (skjult bag et
+  tandhjul på streak-kortet). Gemmes som `indstillinger` i localStorage.
+- Testværktøj nederst: ◀ dag / I dag / dag ▶ flytter "dagens dato" frem og
+  tilbage, så streaks kan afprøves uden at vente. Forskydningen gemmes ikke.
 
 **Virker når:** grønne dage i træk tæller op; en manglet dag nulstiller.
 
