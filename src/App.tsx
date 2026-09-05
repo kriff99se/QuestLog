@@ -3,6 +3,8 @@ import { STANDARD_VANER } from "./vaner";
 import type { Afkrydsninger } from "./types";
 import { iDagISO, iDagLang } from "./datoer";
 import { VaneKort } from "./VaneKort";
+import { beregnSamledePoint, beregnLevel } from "./point";
+import { PointOversigt } from "./PointOversigt";
 
 export default function App() {
   // Vanerne. Første gang appen åbnes, bruges standardlisten med de 9 vaner.
@@ -39,6 +41,12 @@ export default function App() {
   // Hvor mange af vanerne er klaret i dag?
   const antalGjort = vaner.filter((vane) => dagensAfkrydsninger[vane.id]).length;
 
+  // Samlede point og level. Regnes ud fra alle afkrydsninger nogensinde,
+  // så tallene altid passer med data. Ændrer sig automatisk, når du
+  // krydser en vane af eller fra.
+  const samledePoint = beregnSamledePoint(vaner, afkrydsninger);
+  const levelInfo = beregnLevel(samledePoint);
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 p-6">
       <div className="mx-auto max-w-md flex flex-col gap-6">
@@ -51,6 +59,8 @@ export default function App() {
             {antalGjort} af {vaner.length} vaner klaret i dag
           </p>
         </header>
+
+        <PointOversigt samledePoint={samledePoint} levelInfo={levelInfo} />
 
         <ul className="flex flex-col gap-3">
           {vaner.map((vane) => (
