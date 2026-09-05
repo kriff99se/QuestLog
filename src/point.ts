@@ -5,19 +5,15 @@ import type { Vane, Afkrydsninger } from "./types";
 // afkrydsningerne, så tallene aldrig kan komme i utakt med data.
 
 // Level 1 -> 2 koster BASISPRIS point. Hvert level derefter koster
-// FAKTOR gange så meget som det forrige. Med 100 og 1,5 bliver det:
-// 100, 150, 230, 340, 510 ... (afrundet til nærmeste 10).
+// TRIN point mere end det forrige (lineær stigning). Med 100 og 10:
+// 100, 110, 120, 130 ... Level 100 svarer til ca. 60.000 point i alt.
 export const BASISPRIS = 100;
-export const FAKTOR = 1.5;
+export const TRIN = 10;
 
 // Hvor mange point det koster at gå fra "level" til "level + 1".
 export function prisForLevel(level: number): number {
-  // Math.pow(1.5, n) betyder "1,5 ganget med sig selv n gange".
-  // level 1 -> 1,5^0 = 1, level 2 -> 1,5^1 = 1,5, osv.
-  const raaPris = BASISPRIS * Math.pow(FAKTOR, level - 1);
-
-  // Rund til nærmeste 10, så tallene er pæne at se på.
-  return Math.round(raaPris / 10) * 10;
+  // level 1 -> 100, level 2 -> 110, level 3 -> 120, osv.
+  return BASISPRIS + (level - 1) * TRIN;
 }
 
 // Læg point sammen for alle afkrydsninger nogensinde.
