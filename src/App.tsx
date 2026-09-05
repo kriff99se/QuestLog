@@ -41,6 +41,21 @@ export default function App() {
   // Alle opgaver på to-do listen. Starter som en tom liste.
   const [todos, setTodos] = useLocalStorage<Todo[]>("todos", []);
 
+  // Engangs-opdatering: "Ingen snus"-vaner fra før penge-funktionen mangler
+  // feltet "sparerPrDag". Hvis det aldrig er sat, giver vi den 60 kr/dag,
+  // så besparelsen dukker op automatisk uden at man skal ind og rette den.
+  // Har man selv sat et beløb (også 0), rører vi det ikke.
+  useEffect(() => {
+    const snus = vaner.find((v) => v.id === "ingen-snus");
+    if (snus && snus.sparerPrDag === undefined) {
+      setVaner((gamle) =>
+        gamle.map((v) =>
+          v.id === "ingen-snus" ? { ...v, sparerPrDag: 60 } : v,
+        ),
+      );
+    }
+  }, [vaner, setVaner]);
+
   // Hvilken skærm vi kigger på. Gemmes IKKE - appen starter altid på "i-dag".
   const [visning, setVisning] = useState<
     "i-dag" | "rediger" | "todo" | "historik"
