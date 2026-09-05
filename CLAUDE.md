@@ -15,3 +15,7 @@ Projektejeren er nybegynder i programmering. Tilpas svar og kode derefter.
 - **Skriv kommentarer i koden**, der forklarer hvad de enkelte dele gør og
   hvorfor.
 - **Spørg, hvis noget er uklart**, i stedet for at gætte.
+- **Når en fase er færdig:** kør appen (`npm run dev`), åbn den i Chrome via
+  claude-in-chrome-extensionen, tag et screenshot af det nye, og vis det.
+  Luk fanen og stop serveren bagefter. (Kræver at Chrome er åben og har lov
+  til at tilgå `localhost`.)
