@@ -16,15 +16,6 @@ export function iDagISO(): string {
   return tilISO(new Date());
 }
 
-// Dagens dato plus (eller minus) et antal dage, som "2026-09-05"-tekst.
-// 0 = i dag, -1 = i går, 2 = i overmorgen. Bruges af testværktøjet,
-// der lader os "rejse i tid" for at afprøve streaks.
-export function datoForskudt(antalDage: number): string {
-  const d = new Date();
-  d.setDate(d.getDate() + antalDage);
-  return tilISO(d);
-}
-
 // Dagen før en given "2026-09-05"-dato, som ny "2026-09-05"-tekst.
 export function dagenFoer(iso: string): string {
   // Del teksten op i tal: "2026-09-05" -> [2026, 9, 5]

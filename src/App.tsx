@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, type ReactNode } from "react";
 import { useLocalStorage } from "./useLocalStorage";
 import { STANDARD_VANER } from "./vaner";
 import type { Afkrydsninger, Indstillinger, Todo } from "./types";
-import { datoForskudt, datoLang, ugensDatoer, ugedagKort } from "./datoer";
+import { iDagISO, datoLang, ugensDatoer, ugedagKort } from "./datoer";
 import { VaneKort } from "./VaneKort";
 import { beregnSamledePoint, beregnOpgavePoint, beregnLevel } from "./point";
 import { PointOversigt } from "./PointOversigt";
@@ -16,7 +16,6 @@ import {
   antalDageVaneGjort,
 } from "./streaks";
 import { StreakBanner } from "./StreakBanner";
-import { DatoHjaelper } from "./DatoHjaelper";
 import { TodoListe } from "./TodoListe";
 import { Fejring } from "./Fejring";
 import { Historik } from "./Historik";
@@ -62,12 +61,8 @@ export default function App() {
     "i-dag" | "rediger" | "todo" | "historik"
   >("i-dag");
 
-  // Testværktøj: hvor mange dage vi har "rejst" væk fra den rigtige dag.
-  // 0 = i dag. Gemmes ikke.
-  const [datoForskydning, setDatoForskydning] = useState(0);
-
-  // Den dato appen arbejder med lige nu (påvirket af testværktøjet).
-  const dato = datoForskudt(datoForskydning);
+  // Dagens dato som "2026-09-06". Appen arbejder altid med i dag.
+  const dato = iDagISO();
 
   // Afkrydsningerne for netop denne dag (eller et tomt objekt).
   const dagensAfkrydsninger = afkrydsninger[dato] ?? {};
@@ -93,7 +88,6 @@ export default function App() {
     setAfkrydsninger({});
     setIndstillinger({ taerskel: 7 });
     setTodos([]);
-    setDatoForskydning(0);
     setVisning("i-dag");
   }
 
@@ -143,14 +137,6 @@ export default function App() {
 
   // Kør dette hver gang point eller level ændrer sig.
   useEffect(() => {
-    // Mens man "tidsrejser" med testværktøjet, springer vi animationerne
-    // over - ellers ville man få fejringer for point på andre dage.
-    if (datoForskydning !== 0) {
-      forrigePoint.current = samledePoint;
-      forrigeLevel.current = levelInfo.level;
-      return;
-    }
-
     // Er pointtallet steget? Så vis forskellen som et "+X".
     const forskel = samledePoint - forrigePoint.current;
     if (forskel > 0) {
@@ -163,7 +149,7 @@ export default function App() {
       setFejrLevel(levelInfo.level);
     }
     forrigeLevel.current = levelInfo.level;
-  }, [samledePoint, levelInfo.level, datoForskydning]);
+  }, [samledePoint, levelInfo.level]);
 
   // Fjern "+X" igen efter 1 sekund (lige så længe som animationen varer).
   // Vi bruger en timer i stedet for at vente på at animationen slutter, så
@@ -207,14 +193,6 @@ export default function App() {
             {antalGjort} af {vaner.length} vaner klaret
           </p>
         </header>
-
-        {/* Advarsel når vi kigger på en anden dag end i dag. */}
-        {datoForskydning !== 0 && (
-          <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-2 text-sm text-amber-300">
-            Du kigger på en anden dag end i dag ({datoForskydning > 0 ? "+" : ""}
-            {datoForskydning} dage).
-          </p>
-        )}
 
         {/* Menu til at skifte mellem skærmene. "flex-wrap" lader knapperne
             bryde om på en ny linje, hvis der ikke er plads (fx på mobil). */}
@@ -312,11 +290,6 @@ export default function App() {
             iDag={dato}
           />
         )}
-
-        <DatoHjaelper
-          forskydning={datoForskydning}
-          onSkift={setDatoForskydning}
-        />
 
         <Backup />
 

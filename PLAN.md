@@ -106,9 +106,12 @@ Ting vi har besluttet, mens vi byggede, som ikke stod i den oprindelige plan:
 - **Fase 4-regel:** "i dag" tæller kun med i den samlede streak, hvis dagen
   allerede er grøn; ellers tælles der fra i går, så streaken ikke står på 0 hver
   morgen. Samme regel for streak pr. vane.
-- **Fase 4-testværktøj:** en linje nederst med ◀ dag / I dag / dag ▶ til at
-  flytte "dagens dato" frem og tilbage, så streaks kan afprøves uden at vente.
-  Forskydningen gemmes ikke.
+- **Fase 4-testværktøj (FJERNET igen):** var en linje nederst med
+  ◀ dag / I dag / dag ▶ til at flytte "dagens dato" frem og tilbage, så
+  streaks kunne afprøves uden at vente. Fjernet efter appen var færdig og
+  i brug - `src/DatoHjaelper.tsx` slettet, og `datoForskudt` samt hele
+  `datoForskydning`-logikken taget ud af `App.tsx` (`dato` er nu bare
+  `iDagISO()`).
 - **Streak-kortets design:** stort glødende tal + et uge-spor (mandag–søndag)
   hvor grønne dage vises som flammer og i dag har en grøn ring. Tærskel-
   indstillingen er skjult bag et lille tandhjul, så kortet ikke roder.
@@ -187,8 +190,8 @@ Skærm hvor du kan tilføje, omdøbe, skifte ikon, skifte point og slette vaner.
   Samme "i dag"-regel som ovenfor. Pillens farve bliver varmere med længden.
 - Tærskel er en indstilling, standard 7 ud af 10, kan ændres (skjult bag et
   tandhjul på streak-kortet). Gemmes som `indstillinger` i localStorage.
-- Testværktøj nederst: ◀ dag / I dag / dag ▶ flytter "dagens dato" frem og
-  tilbage, så streaks kan afprøves uden at vente. Forskydningen gemmes ikke.
+- ~~Testværktøj nederst: ◀ dag / I dag / dag ▶ flytter "dagens dato"~~
+  (fjernet igen efter appen var i brug - se "beslutninger undervejs").
 
 **Virker når:** grønne dage i træk tæller op; en manglet dag nulstiller.
 
@@ -216,10 +219,6 @@ Detaljer:
 - **Fejring ved level up:** komponenten `Fejring.tsx`. Et mørkt lag over hele
   skærmen med en boks der "popper" ind (🎉 + "Level N!"). Lukker af sig selv
   efter 2,5 sek. eller ved klik.
-- **Testværktøjet slår animationerne fra:** når man "tidsrejser" med dato-
-  værktøjet, springes point-/level-animationer over, så man ikke får en
-  fejring for point på en anden dag.
-
 ### Fase 7 – Finpudsning ✅
 Simpel historik-/kalendervisning. "Nulstil alt"-knap med bekræftelse. Tjek
 mobil-layout.
@@ -237,8 +236,8 @@ mobil-layout.
   (vaner, afkrydsninger, indstillinger, todos) tilbage til startværdi.
 - ✅ **Mobil-layout:** afprøvet ved 390 px bredde. Rettelser: mindre
   padding på mobil (`p-4 sm:p-6`), `overflow-x-clip` på ydersiden så
-  siden aldrig kan scrolles vandret, `flex-wrap` på testværktøjet og
-  nulstil-linjen, og `min-w-0` + `break-words` på vane-navne og titlen,
+  siden aldrig kan scrolles vandret, `flex-wrap` på linjerne nederst
+  (backup / nulstil), og `min-w-0` + `break-words` på vane-navne og titlen,
   så lang tekst bryder om i stedet for at skubbe kortet ud over kanten.
   `<meta viewport>` var allerede på plads i `index.html`.
 - ✅ **Level-kortet klæber fast øverst.** På "I dag"-skærmen er point-/
