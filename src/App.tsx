@@ -226,16 +226,16 @@ export default function App() {
             I dag
           </FaneKnap>
           <FaneKnap
-            aktiv={visning === "rediger"}
-            onClick={() => setVisning("rediger")}
-          >
-            Rediger vaner
-          </FaneKnap>
-          <FaneKnap
             aktiv={visning === "todo"}
             onClick={() => setVisning("todo")}
           >
             To-do
+          </FaneKnap>
+          <FaneKnap
+            aktiv={visning === "rediger"}
+            onClick={() => setVisning("rediger")}
+          >
+            Rediger vaner
           </FaneKnap>
           <FaneKnap
             aktiv={visning === "historik"}
