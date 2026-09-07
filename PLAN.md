@@ -282,6 +282,13 @@ Psykologiske greb der skal gøre det lettere at blive ved.
 - Ny `laengsteStreak(...)`: den længste streak nogensinde, regnet ud fra hele
   historikken. Vist som "Rekord" på streak-kortet - kan aldrig mistes.
 
+**2. "Du er tæt på"-linje** (`src/StreakBanner.tsx`)
+- Én kort linje på streak-kortet: enten "Kun 2 vaner til en grøn dag i dag"
+  (når dagen ikke er grøn endnu, i gult), eller "2 dage til en 7-dages
+  streak" (når den er grøn, i grønt). Milepæle: 3, 7, 14, 30, 60, 100,
+  200, 365 - derefter næste hundrede. Udnytter "goal-gradient"-effekten:
+  motivationen stiger, jo tættere man er på et mål.
+
 ### Ekstra: sikkerhedskopi (backup) af data
 
 Fordi data kun lever ét sted (den browser / telefon), er der to knapper

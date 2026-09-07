@@ -1,5 +1,8 @@
 import { useState } from "react";
 
+// Runde streak-tal, det er sjovt at ramme.
+const MILEPAELE = [3, 7, 14, 30, 60, 100, 200, 365];
+
 // Én dag i uge-sporet.
 export type UgeDag = {
   dato: string; // "2026-09-05"
@@ -37,6 +40,20 @@ export function StreakBanner({
 
   const groenIDag = gjortIDag >= taerskel;
   const harStreak = streak > 0;
+
+  // Én kort "du er tæt på"-linje: enten hvor lidt der mangler til en grøn
+  // dag, eller hvor få dage der er til den næste streak-milepæl.
+  let naesteMaal: string;
+  if (!groenIDag) {
+    const mangler = taerskel - gjortIDag;
+    naesteMaal = `Kun ${mangler} ${mangler === 1 ? "vane" : "vaner"} til en grøn dag i dag`;
+  } else {
+    // Næste runde tal over den nuværende streak (eller næste hundrede).
+    const naeste =
+      MILEPAELE.find((m) => m > streak) ?? Math.ceil((streak + 1) / 100) * 100;
+    const til = naeste - streak;
+    naesteMaal = `${til} ${til === 1 ? "dag" : "dage"} til en ${naeste}-dages streak`;
+  }
 
   return (
     <div
@@ -82,6 +99,16 @@ export function StreakBanner({
           </span>
         )}
       </div>
+
+      {/* "Du er tæt på"-linje. */}
+      <p
+        className={
+          "text-sm font-medium " +
+          (groenIDag ? "text-emerald-300" : "text-amber-300")
+        }
+      >
+        🎯 {naesteMaal}
+      </p>
 
       {/* Besked når skjoldet har reddet en misset dag. */}
       {skjoldBrugt && (
