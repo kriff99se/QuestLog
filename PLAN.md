@@ -266,6 +266,22 @@ Appen kan nu lægges på telefonens hjemmeskærm og virke offline.
   (localhost) er to adskilte "kasser" i browseren - data deles ikke mellem
   dem.
 
+### Ekstra: motivations-forbedringer
+
+Psykologiske greb der skal gøre det lettere at blive ved.
+
+**1. Streak-skjold + personlig rekord** (`src/streaks.ts`)
+- En streak tåler nu ÉN misset dag ("skjoldet"). Den dag tæller ikke med,
+  men nulstiller heller ikke streaken. Misser man to i træk - eller én mere
+  efter skjoldet er brugt - er den slut. Formål: en enkelt dårlig dag sender
+  ikke folk tilbage til nul, hvilket er dét, der får dem til at give op.
+  Gælder både den samlede dags-streak og streak pr. vane.
+- `samletStreak` returnerer nu `{ dage, skjoldBrugt }`. Kortet viser en
+  🛡️-besked, når skjoldet har reddet en dag (kun hvis hullet lå midt i
+  streaken - ikke i den tomme tid før den begyndte).
+- Ny `laengsteStreak(...)`: den længste streak nogensinde, regnet ud fra hele
+  historikken. Vist som "Rekord" på streak-kortet - kan aldrig mistes.
+
 ### Ekstra: sikkerhedskopi (backup) af data
 
 Fordi data kun lever ét sted (den browser / telefon), er der to knapper

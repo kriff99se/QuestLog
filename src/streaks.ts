@@ -1,5 +1,5 @@
 import type { Vane, Afkrydsninger } from "./types";
-import { dagenFoer } from "./datoer";
+import { dagenFoer, dagenEfter } from "./datoer";
 
 // Her regner vi streaks ud. Ligesom point og level bliver de aldrig gemt -
 // de beregnes altid ud fra afkrydsningerne, så de ikke kan komme i utakt.
@@ -34,55 +34,114 @@ export function erGroenDag(
   return antalGjortPaaDato(vaner, afkrydsninger, dato) >= taerskel;
 }
 
-// Den samlede dags-streak: antal grønne dage i træk.
+// --- Streaks med ét "skjold" ---
 //
-// Regel: "i dag" tæller kun med, hvis dagen allerede er grøn. Ellers starter
-// vi tællingen i går, så streaken ikke står på 0 hver morgen, før man
-// har nået at krydse nok af.
+// Reglerne for en streak:
+// - "I dag" tæller kun med, hvis dagen allerede er grøn. Ellers starter vi
+//   tællingen i går, så streaken ikke står på 0 hver morgen.
+// - Streaken tåler ÉN misset dag undervejs ("skjoldet"). Den dag tæller
+//   ikke med i tallet, men den nulstiller heller ikke streaken. Misser man
+//   to dage - eller en dag mere efter skjoldet er brugt - er streaken slut.
+//
+// Det gør, at en enkelt dårlig dag ikke sender én tilbage til nul, hvilket
+// er dét, der får folk til at give op ("nu er den alligevel ødelagt").
+
+type StreakInfo = {
+  dage: number; // antal grønne dage i den nuværende streak
+  skjoldBrugt: boolean; // reddede streaken en misset dag?
+};
+
+// Går baglæns fra en startdato og tæller "gode" dage, mens den tillader
+// én misset dag. "erGod" fortæller, om en bestemt dato talte som god.
+function taelBaglaens(
+  start: string,
+  erGod: (dato: string) => boolean,
+): StreakInfo {
+  let dato = start;
+
+  // Er startdagen ikke god endnu? Så begynder vi i går (i dag er "i gang").
+  if (!erGod(dato)) dato = dagenFoer(dato);
+
+  let dage = 0;
+  let skjoldBrugt = false;
+  let groenneEfterSkjold = 0; // grønne dage ældre end det bridgede hul
+
+  while (true) {
+    if (erGod(dato)) {
+      dage += 1;
+      if (skjoldBrugt) groenneEfterSkjold += 1;
+    } else if (!skjoldBrugt) {
+      // Første missede dag: brug skjoldet og fortsæt.
+      skjoldBrugt = true;
+    } else {
+      // Anden missede dag: streaken er slut.
+      break;
+    }
+    dato = dagenFoer(dato);
+  }
+
+  // Skjoldet "reddede" kun noget rigtigt, hvis hullet lå MIDT i streaken -
+  // altså grønne dage på begge sider af det. Ellers var det bare den tomme
+  // tid før streaken begyndte, og så skal vi ikke sige noget.
+  const skjoldReddede =
+    skjoldBrugt && groenneEfterSkjold > 0 && dage > groenneEfterSkjold;
+
+  return { dage, skjoldBrugt: skjoldReddede };
+}
+
+// Den samlede dags-streak (grønne dage i træk, med ét skjold).
 export function samletStreak(
   vaner: Vane[],
   afkrydsninger: Afkrydsninger,
   iDag: string,
   taerskel: number,
-): number {
-  let dato = iDag;
-
-  // Er i dag ikke grøn endnu? Så begynder vi at kigge fra i går.
-  if (!erGroenDag(vaner, afkrydsninger, dato, taerskel)) {
-    dato = dagenFoer(dato);
-  }
-
-  // Gå baglæns, én dag ad gangen, så længe dagen er grøn.
-  let streak = 0;
-  while (erGroenDag(vaner, afkrydsninger, dato, taerskel)) {
-    streak += 1;
-    dato = dagenFoer(dato);
-  }
-  return streak;
+): StreakInfo {
+  return taelBaglaens(iDag, (dato) =>
+    erGroenDag(vaner, afkrydsninger, dato, taerskel),
+  );
 }
 
-// Streak for én enkelt vane: antal dage i træk lige den vane er holdt.
-// Samme regel om "i dag" som ovenfor.
+// Streak for én enkelt vane: dage i træk vanen er holdt (med ét skjold).
 export function vaneStreak(
   afkrydsninger: Afkrydsninger,
   vaneId: string,
   iDag: string,
 ): number {
-  // Lille hjælper: var denne vane krydset af på en bestemt dato?
-  function holdt(dato: string): boolean {
-    const dagen = afkrydsninger[dato] ?? {};
-    return Boolean(dagen[vaneId]);
-  }
+  const info = taelBaglaens(iDag, (dato) =>
+    Boolean((afkrydsninger[dato] ?? {})[vaneId]),
+  );
+  return info.dage;
+}
 
-  let dato = iDag;
-  if (!holdt(dato)) {
-    dato = dagenFoer(dato);
-  }
+// Den længste samlede streak nogensinde - et "personligt rekord", der
+// aldrig kan mistes. Regnes ud ved at gå historikken igennem fra den
+// første registrerede dag og frem til i dag, med samme skjold-regel.
+export function laengsteStreak(
+  vaner: Vane[],
+  afkrydsninger: Afkrydsninger,
+  iDag: string,
+  taerskel: number,
+): number {
+  const datoer = Object.keys(afkrydsninger).sort();
+  if (datoer.length === 0) return 0;
 
-  let streak = 0;
-  while (holdt(dato)) {
-    streak += 1;
-    dato = dagenFoer(dato);
+  let bedste = 0;
+  let dage = 0;
+  let skjoldBrugt = false;
+
+  // "YYYY-MM-DD" kan sammenlignes direkte som tekst.
+  for (let dato = datoer[0]; dato <= iDag; dato = dagenEfter(dato)) {
+    if (erGroenDag(vaner, afkrydsninger, dato, taerskel)) {
+      dage += 1;
+    } else if (!skjoldBrugt) {
+      skjoldBrugt = true; // brug skjoldet, streaken fortsætter
+    } else {
+      // To missede dage: denne streak er slut - gem den og start forfra.
+      if (dage > bedste) bedste = dage;
+      dage = 0;
+      skjoldBrugt = false;
+    }
   }
-  return streak;
+  if (dage > bedste) bedste = dage;
+  return bedste;
 }

@@ -14,6 +14,7 @@ import {
   vaneStreak,
   erGroenDag,
   antalDageVaneGjort,
+  laengsteStreak,
 } from "./streaks";
 import { StreakBanner } from "./StreakBanner";
 import { TodoListe } from "./TodoListe";
@@ -111,8 +112,9 @@ export default function App() {
   const levelInfo = beregnLevel(samledePoint);
   const titel = findTitel(levelInfo.level);
 
-  // Den samlede dags-streak (grønne dage i træk), regnet fra den valgte dag.
-  const streak = samletStreak(vaner, afkrydsninger, dato, taerskel);
+  // Den samlede dags-streak (grønne dage i træk) + den længste nogensinde.
+  const dagsStreak = samletStreak(vaner, afkrydsninger, dato, taerskel);
+  const rekordStreak = laengsteStreak(vaner, afkrydsninger, dato, taerskel);
 
   // --- Animationer (Fase 6) ---
   //
@@ -251,7 +253,9 @@ export default function App() {
             </div>
 
             <StreakBanner
-              streak={streak}
+              streak={dagsStreak.dage}
+              skjoldBrugt={dagsStreak.skjoldBrugt}
+              rekord={rekordStreak}
               taerskel={taerskel}
               antalVaner={vaner.length}
               gjortIDag={antalGjort}

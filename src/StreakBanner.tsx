@@ -11,6 +11,8 @@ export type UgeDag = {
 
 type Props = {
   streak: number; // samlet dags-streak (grønne dage i træk)
+  skjoldBrugt: boolean; // reddede streaken en misset dag?
+  rekord: number; // den længste streak nogensinde
   taerskel: number; // hvor mange vaner der skal til for en grøn dag
   antalVaner: number; // hvor mange vaner der findes i alt
   gjortIDag: number; // hvor mange vaner der er klaret i dag
@@ -22,6 +24,8 @@ type Props = {
 // og tærskel-indstillingen gemt bag et lille tandhjul.
 export function StreakBanner({
   streak,
+  skjoldBrugt,
+  rekord,
   taerskel,
   antalVaner,
   gjortIDag,
@@ -66,7 +70,25 @@ export function StreakBanner({
             {streak === 1 ? "dag i træk" : "dage i træk"}
           </span>
         </div>
+
+        {/* Personlig rekord ude i højre side - kan aldrig mistes. */}
+        {rekord > 0 && (
+          <span className="ml-auto text-right text-xs text-slate-500">
+            Rekord
+            <br />
+            <span className="text-sm font-semibold text-slate-300">
+              {rekord} {rekord === 1 ? "dag" : "dage"}
+            </span>
+          </span>
+        )}
       </div>
+
+      {/* Besked når skjoldet har reddet en misset dag. */}
+      {skjoldBrugt && (
+        <p className="rounded-lg bg-slate-900/60 px-3 py-1.5 text-xs text-slate-400">
+          🛡️ Streaken overlevede én misset dag. Misser du én til, nulstilles den.
+        </p>
+      )}
 
       {/* Uge-sporet: mandag til søndag. */}
       <div className="flex justify-between gap-1">

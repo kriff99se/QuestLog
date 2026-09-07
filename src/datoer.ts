@@ -26,6 +26,13 @@ export function dagenFoer(iso: string): string {
   return tilISO(d);
 }
 
+// Dagen efter en given "2026-09-05"-dato. Modstykket til dagenFoer.
+export function dagenEfter(iso: string): string {
+  const [aar, maaned, dag] = iso.split("-").map(Number);
+  const d = new Date(aar, maaned - 1, dag + 1);
+  return tilISO(d);
+}
+
 // De 7 datoer i den uge, som en given dato ligger i - mandag til søndag.
 // Bruges til uge-sporet i streak-kortet.
 export function ugensDatoer(iso: string): string[] {
