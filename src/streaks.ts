@@ -135,14 +135,13 @@ export function naesteMaal(
   return `${til} ${til === 1 ? "dag" : "dage"} til en ${naeste}-dages streak`;
 }
 
-// Den længste samlede streak nogensinde - et "personligt rekord", der
-// aldrig kan mistes. Regnes ud ved at gå historikken igennem fra den
-// første registrerede dag og frem til i dag, med samme skjold-regel.
-export function laengsteStreak(
-  vaner: Vane[],
+// Går hele historikken igennem (fra første registrerede dag til i dag) og
+// finder den længste stime af "gode" dage, med samme skjold-regel som de
+// andre streaks. "erGod" fortæller, om en bestemt dato var god.
+function laengsteRun(
   afkrydsninger: Afkrydsninger,
   iDag: string,
-  taerskel: number,
+  erGod: (dato: string) => boolean,
 ): number {
   const datoer = Object.keys(afkrydsninger).sort();
   if (datoer.length === 0) return 0;
@@ -153,17 +152,40 @@ export function laengsteStreak(
 
   // "YYYY-MM-DD" kan sammenlignes direkte som tekst.
   for (let dato = datoer[0]; dato <= iDag; dato = dagenEfter(dato)) {
-    if (erGroenDag(vaner, afkrydsninger, dato, taerskel)) {
+    if (erGod(dato)) {
       dage += 1;
     } else if (!skjoldBrugt) {
-      skjoldBrugt = true; // brug skjoldet, streaken fortsætter
+      skjoldBrugt = true; // brug skjoldet, stimen fortsætter
     } else {
-      // To missede dage: denne streak er slut - gem den og start forfra.
+      // To missede dage: denne stime er slut - gem den og start forfra.
       if (dage > bedste) bedste = dage;
       dage = 0;
       skjoldBrugt = false;
     }
   }
-  if (dage > bedste) bedste = dage;
-  return bedste;
+  return Math.max(bedste, dage);
+}
+
+// Den længste samlede dags-streak nogensinde - et "personligt rekord",
+// der aldrig kan mistes.
+export function laengsteStreak(
+  vaner: Vane[],
+  afkrydsninger: Afkrydsninger,
+  iDag: string,
+  taerskel: number,
+): number {
+  return laengsteRun(afkrydsninger, iDag, (dato) =>
+    erGroenDag(vaner, afkrydsninger, dato, taerskel),
+  );
+}
+
+// Den længste stime for én enkelt vane nogensinde.
+export function laengsteVaneStreak(
+  afkrydsninger: Afkrydsninger,
+  vaneId: string,
+  iDag: string,
+): number {
+  return laengsteRun(afkrydsninger, iDag, (dato) =>
+    Boolean((afkrydsninger[dato] ?? {})[vaneId]),
+  );
 }

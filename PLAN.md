@@ -324,6 +324,23 @@ Psykologiske greb der skal gøre det lettere at blive ved.
   mod sig selv uge efter uge.
 - Ny hjælper `pointForDatoer(...)` i `point.ts`.
 
+### Ekstra: historik pr. vane, dagbogs-note, flyt vaner
+
+- **Flyt rundt på vaner:** hver række i "Rediger vaner" har op/ned-pile.
+  Rækkefølgen bestemmer, hvordan vanerne står på Hjem-skærmen.
+- **Dagbogs-note pr. dag** (`DagNote.tsx`): et valgfrit tekstfelt "Note
+  til i dag" på Hjem, gemt under localStorage-nøglen `noter` (ét stykke
+  tekst pr. dato, tom = fjernet). Med i backup og "Nulstil alt".
+- **Dag-detaljer i historikken:** kalenderdage kan trykkes på → et panel
+  viser datoen, hvilke vaner der blev klaret, og dagens note. Dage med en
+  note får en lille prik.
+- **Historik pr. vane:** en `<select>` øverst i historikken - "Alle vaner"
+  (den samlede grøn-dag-visning) eller én bestemt vane. Vælger man en
+  vane, farves kalenderen efter om lige den vane blev klaret, og
+  opsummeringen viser "X dage med Fitness", nuværende stime og rekord for
+  den vane. Ny `laengsteVaneStreak(...)` i `streaks.ts` (delt logik med
+  `laengsteStreak` via den nye `laengsteRun`-hjælper).
+
 ### Ekstra: sikkerhedskopi (backup) af data
 
 Fordi data kun lever ét sted (den browser / telefon), er der to knapper

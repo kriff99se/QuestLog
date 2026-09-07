@@ -1,6 +1,11 @@
 import { useState, type ReactNode } from "react";
 import type { Vane, Afkrydsninger } from "./types";
-import { antalGjortPaaDato, erGroenDag } from "./streaks";
+import {
+  antalGjortPaaDato,
+  erGroenDag,
+  vaneStreak,
+  laengsteVaneStreak,
+} from "./streaks";
 import { pointForDatoer } from "./point";
 import {
   maanedensDatoer,
@@ -43,6 +48,18 @@ export function Historik({
   // dag-detaljerne under kalenderen.
   const [valgtDato, setValgtDato] = useState<string | null>(null);
 
+  // Hvilken vane vi filtrerer på: "alle" (den samlede grøn-dag-visning)
+  // eller en bestemt vanes id (så ser vi kun den vanes historik).
+  const [valgtVane, setValgtVane] = useState<string>("alle");
+  const erAlle = valgtVane === "alle";
+
+  // Var en bestemt dag "god"? For "alle" = en grøn dag. For én vane =
+  // blev lige den vane krydset af.
+  function erGodDag(dato: string): boolean {
+    if (erAlle) return erGroenDag(vaner, afkrydsninger, dato, taerskel);
+    return Boolean((afkrydsninger[dato] ?? {})[valgtVane]);
+  }
+
   // Gå en måned frem eller tilbage. Vi lader Date klare årsskifte selv.
   function skiftMaaned(retning: number) {
     const d = new Date(vist.aar, vist.maaned0 + retning, 1);
@@ -52,10 +69,13 @@ export function Historik({
   const datoer = maanedensDatoer(vist.aar, vist.maaned0);
   const tomme = tommeFoerMaaned(vist.aar, vist.maaned0);
 
-  // Tæl grønne dage i den viste måned (til den lille opsummering).
-  const groenneDage = datoer.filter(
-    (dato) => antalGjortPaaDato(vaner, afkrydsninger, dato) >= taerskel,
+  // Tæl "gode" dage i den viste måned (til den lille opsummering).
+  const godeDageIMaaned = datoer.filter(
+    (dato) => dato <= iDag && erGodDag(dato),
   ).length;
+
+  // Navnet på den valgte vane (til overskrifter).
+  const valgtVaneNavn = vaner.find((v) => v.id === valgtVane)?.navn ?? "";
 
   // --- Uge for uge ---
   // Én række pr. uge fra denne uge og bagud til den uge, hvor den første
@@ -79,7 +99,7 @@ export function Historik({
     const ugeDatoer = ugensDatoer(mandag);
     const dage = ugeDatoer.map((d) => ({
       dato: d,
-      groen: d <= iDag && erGroenDag(vaner, afkrydsninger, d, taerskel),
+      groen: d <= iDag && erGodDag(d),
       fremtid: d > iDag,
     }));
     const synlige = ugeDatoer.filter((d) => d <= iDag);
@@ -107,6 +127,24 @@ export function Historik({
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Vane-vælger: se enten alt samlet, eller kun én bestemt vane. */}
+      <select
+        value={valgtVane}
+        onChange={(e) => {
+          setValgtVane(e.target.value);
+          setValgtDato(null);
+        }}
+        aria-label="Vis historik for"
+        className="rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-slate-100"
+      >
+        <option value="alle">Alle vaner (grønne dage)</option>
+        {vaner.map((v) => (
+          <option key={v.id} value={v.id}>
+            {v.ikon} {v.navn}
+          </option>
+        ))}
+      </select>
+
       {/* Måneds-vælger: pil tilbage, månedens navn, pil frem. */}
       <div className="flex items-center justify-between">
         <PilKnap onClick={() => skiftMaaned(-1)} label="Forrige måned">
@@ -140,15 +178,15 @@ export function Historik({
         {/* Én rude pr. dag i måneden. Tryk for at se detaljer om dagen. */}
         {datoer.map((dato) => {
           const antal = antalGjortPaaDato(vaner, afkrydsninger, dato);
-          const groen = antal >= taerskel;
+          const god = dato <= iDag && erGodDag(dato);
           const erIDag = dato === iDag;
           const erFremtid = dato > iDag;
           const harNote = Boolean(noter[dato]);
 
-          // Baggrundsfarve efter hvor godt dagen gik.
+          // Baggrundsfarve. For "alle": grøn/gul/grå. For én vane: grøn/grå.
           let farve = "bg-slate-800 text-slate-500";
-          if (groen) farve = "bg-emerald-500/80 text-slate-900 font-semibold";
-          else if (antal > 0) farve = "bg-amber-500/25 text-amber-200";
+          if (god) farve = "bg-emerald-500/80 text-slate-900 font-semibold";
+          else if (erAlle && antal > 0) farve = "bg-amber-500/25 text-amber-200";
 
           return (
             <button
@@ -157,7 +195,13 @@ export function Historik({
               onClick={() =>
                 setValgtDato((d) => (d === dato ? null : dato))
               }
-              title={`${antal} af ${vaner.length} vaner`}
+              title={
+                erAlle
+                  ? `${antal} af ${vaner.length} vaner`
+                  : god
+                    ? "Gjort"
+                    : "Ikke gjort"
+              }
               className={
                 "relative flex aspect-square items-center justify-center rounded-md text-sm " +
                 farve +
@@ -191,22 +235,48 @@ export function Historik({
       )}
 
       {/* Lille opsummering + forklaring på farverne. */}
-      <p className="text-sm text-slate-400">
-        {groenneDage} grønne{" "}
-        {groenneDage === 1 ? "dag" : "dage"} i {maanedNavn(vist.aar, vist.maaned0)}
-      </p>
-      <div className="flex flex-wrap gap-4 text-xs text-slate-500">
-        <Forklaring farve="bg-emerald-500/80">Grøn dag</Forklaring>
-        <Forklaring farve="bg-amber-500/25">Noget gjort</Forklaring>
-        <Forklaring farve="bg-slate-800">Ingenting</Forklaring>
-      </div>
+      {erAlle ? (
+        <>
+          <p className="text-sm text-slate-400">
+            {godeDageIMaaned} grønne {godeDageIMaaned === 1 ? "dag" : "dage"} i{" "}
+            {maanedNavn(vist.aar, vist.maaned0)}
+          </p>
+          <div className="flex flex-wrap gap-4 text-xs text-slate-500">
+            <Forklaring farve="bg-emerald-500/80">Grøn dag</Forklaring>
+            <Forklaring farve="bg-amber-500/25">Noget gjort</Forklaring>
+            <Forklaring farve="bg-slate-800">Ingenting</Forklaring>
+          </div>
+        </>
+      ) : (
+        <>
+          <p className="text-sm text-slate-400">
+            {godeDageIMaaned} {godeDageIMaaned === 1 ? "dag" : "dage"} med{" "}
+            {valgtVaneNavn} i {maanedNavn(vist.aar, vist.maaned0)}
+          </p>
+          <p className="text-sm text-slate-500">
+            Nuværende stime:{" "}
+            <span className="font-semibold text-slate-300">
+              {vaneStreak(afkrydsninger, valgtVane, iDag)}
+            </span>{" "}
+            · rekord:{" "}
+            <span className="font-semibold text-slate-300">
+              {laengsteVaneStreak(afkrydsninger, valgtVane, iDag)}
+            </span>
+          </p>
+          <div className="flex flex-wrap gap-4 text-xs text-slate-500">
+            <Forklaring farve="bg-emerald-500/80">Gjort</Forklaring>
+            <Forklaring farve="bg-slate-800">Ikke gjort</Forklaring>
+          </div>
+        </>
+      )}
 
       {/* Uge for uge - så man kan konkurrere mod sig selv. */}
       <div className="mt-2 flex flex-col gap-2 border-t border-slate-700 pt-4">
         <h2 className="text-sm font-semibold text-slate-300">Uge for uge</h2>
         {harBedste && (
           <p className="text-sm text-slate-400">
-            Din bedste uge: {bedste.groenne} grønne{" "}
+            Din bedste uge: {bedste.groenne}{" "}
+            {erAlle ? "grønne " : ""}
             {bedste.groenne === 1 ? "dag" : "dage"} 🏆
           </p>
         )}
