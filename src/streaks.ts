@@ -113,6 +113,28 @@ export function vaneStreak(
   return info.dage;
 }
 
+// Runde streak-tal, det er sjovt at ramme.
+const MILEPAELE = [3, 7, 14, 30, 60, 100, 200, 365];
+
+// Én kort "du er tæt på"-tekst: enten hvor lidt der mangler til en grøn dag,
+// eller hvor få dage der er til den næste streak-milepæl. Udnytter at
+// motivationen stiger, jo tættere man er på et mål.
+export function naesteMaal(
+  streak: number,
+  gjortIDag: number,
+  taerskel: number,
+): string {
+  if (gjortIDag < taerskel) {
+    const mangler = taerskel - gjortIDag;
+    return `Kun ${mangler} ${mangler === 1 ? "vane" : "vaner"} til en grøn dag i dag`;
+  }
+  // Næste runde tal over den nuværende streak (eller næste hundrede).
+  const naeste =
+    MILEPAELE.find((m) => m > streak) ?? Math.ceil((streak + 1) / 100) * 100;
+  const til = naeste - streak;
+  return `${til} ${til === 1 ? "dag" : "dage"} til en ${naeste}-dages streak`;
+}
+
 // Den længste samlede streak nogensinde - et "personligt rekord", der
 // aldrig kan mistes. Regnes ud ved at gå historikken igennem fra den
 // første registrerede dag og frem til i dag, med samme skjold-regel.

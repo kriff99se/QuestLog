@@ -266,6 +266,25 @@ Appen kan nu lægges på telefonens hjemmeskærm og virke offline.
   (localhost) er to adskilte "kasser" i browseren - data deles ikke mellem
   dem.
 
+### Ekstra: redesign af "Hjem"-skærmen (mere app-agtig på iPhone)
+
+Problemet var, at appen åbnede på *statistik* - man skulle scrolle forbi
+tre store kort (titel, level, streak) for at nå det, man kom for: at
+krydse dagens vaner af. Løsningen:
+
+- **Bund-menu** (`BundMenu.tsx`) i stedet for pille-faner i toppen. Faste
+  streg-ikoner (Hjem / To-do / Historik / Rediger). Føles som en iOS-app.
+  "Sikkerhedskopi" + "Nulstil alt" flyttet ind under "Rediger".
+- **Kompakt status-stribe** (`StatusStribe.tsx`) klæber fast øverst på
+  Hjem: level + streak på én linje, en fremskridtsbjælke mod dagens grønne
+  dag, og "du er tæt på"-linjen. Alt det vigtige på tre linjer.
+- **Vanerne kommer nu FØRST** - lige under stribjen. Klarede vaner tones
+  ned (opacity), så de lyse kort, der er tilbage, er dem øjet fanger.
+- Det store streak-kort er slanket til et "Denne uge"-kort (uge-spor +
+  rekord + tærskel-tandhjul) og flyttet NED under vanerne, sammen med
+  titel-kortet og level-bjælken.
+- Slank header: lille "QuestLog" + dato.
+
 ### Ekstra: motivations-forbedringer
 
 Psykologiske greb der skal gøre det lettere at blive ved.

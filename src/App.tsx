@@ -15,8 +15,10 @@ import {
   erGroenDag,
   antalDageVaneGjort,
   laengsteStreak,
+  naesteMaal,
 } from "./streaks";
 import { StreakBanner } from "./StreakBanner";
+import { StatusStribe } from "./StatusStribe";
 import { TodoListe } from "./TodoListe";
 import { Fejring } from "./Fejring";
 import { Historik } from "./Historik";
@@ -115,6 +117,9 @@ export default function App() {
   const dagsStreak = samletStreak(vaner, afkrydsninger, dato, taerskel);
   const rekordStreak = laengsteStreak(vaner, afkrydsninger, dato, taerskel);
 
+  // Den korte "du er tæt på"-tekst til status-stribjen.
+  const maalTekst = naesteMaal(dagsStreak.dage, antalGjort, taerskel);
+
   // --- Animationer (Fase 6) ---
   //
   // Vi vil gerne vise et lille "+X", når pointtallet stiger, og en kort
@@ -185,31 +190,28 @@ export default function App() {
     // længere nede (level-kortet der klæber fast øverst).
     <div className="min-h-screen overflow-x-clip bg-slate-900 text-slate-100 p-4 sm:p-6">
       {/* "pb-24": plads i bunden, så indholdet ikke gemmer sig bag bund-menuen. */}
-      <div className="mx-auto flex max-w-md flex-col gap-6 pb-24">
-        <header className="flex flex-col gap-1">
-          <h1 className="text-3xl font-bold text-emerald-400">QuestLog</h1>
-          <p className="text-slate-400 first-letter:uppercase">
+      <div className="mx-auto flex max-w-md flex-col gap-5 pb-24">
+        <header className="flex flex-col">
+          <h1 className="text-xl font-bold text-emerald-400">QuestLog</h1>
+          <p className="text-sm text-slate-500 first-letter:uppercase">
             {datoLang(dato)}
-          </p>
-          <p className="text-sm text-slate-500">
-            {antalGjort} af {vaner.length} vaner klaret
           </p>
         </header>
 
         {visning === "i-dag" && (
           <>
-            <TitelBanner titel={titel} level={levelInfo.level} />
-
-            {/* Point-kortet.
-                - "sticky top-0" får kortet til at "klæbe" fast øverst på
-                  skærmen, så man altid kan se sit level, også når man har
-                  scrollet langt ned i vane-listen.
-                - "z-20" lægger det oven på de vane-kort, der scroller forbi.
-                - "shadow-md" giver en lille skygge, så det tydeligt ligger
-                  oven på indholdet.
-                Laget her fungerer også som anker for det svævende "+X". */}
-            <div className="sticky top-0 z-20 rounded-xl shadow-md shadow-slate-950/40">
-              <PointOversigt samledePoint={samledePoint} levelInfo={levelInfo} />
+            {/* Kompakt status-stribe - klæber fast øverst på skærmen, så man
+                altid kan se level, streak og dagens fremskridt. Den er også
+                anker for det svævende "+X" ved point. */}
+            <div className="sticky top-0 z-20">
+              <StatusStribe
+                titel={titel}
+                level={levelInfo.level}
+                streak={dagsStreak.dage}
+                gjortIDag={antalGjort}
+                taerskel={taerskel}
+                naesteMaal={maalTekst}
+              />
 
               {flyvendePoint && (
                 <span
@@ -223,17 +225,7 @@ export default function App() {
               )}
             </div>
 
-            <StreakBanner
-              streak={dagsStreak.dage}
-              skjoldBrugt={dagsStreak.skjoldBrugt}
-              rekord={rekordStreak}
-              taerskel={taerskel}
-              antalVaner={vaner.length}
-              gjortIDag={antalGjort}
-              ugensDage={ugensDage}
-              onTaerskel={saetTaerskel}
-            />
-
+            {/* Vanerne - det man åbner appen for. */}
             <ul className="flex flex-col gap-3">
               {vaner.map((vane) => (
                 <VaneKort
@@ -246,6 +238,21 @@ export default function App() {
                 />
               ))}
             </ul>
+
+            {/* Detaljer længere nede: ugen, level og titel. */}
+            <StreakBanner
+              streak={dagsStreak.dage}
+              skjoldBrugt={dagsStreak.skjoldBrugt}
+              rekord={rekordStreak}
+              taerskel={taerskel}
+              antalVaner={vaner.length}
+              ugensDage={ugensDage}
+              onTaerskel={saetTaerskel}
+            />
+
+            <TitelBanner titel={titel} level={levelInfo.level} />
+
+            <PointOversigt samledePoint={samledePoint} levelInfo={levelInfo} />
           </>
         )}
 

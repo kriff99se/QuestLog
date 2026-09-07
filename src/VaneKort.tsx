@@ -48,12 +48,15 @@ export function VaneKort({ vane, gjort, streak, dageGjortIAlt, onSkift }: Props)
   return (
     <li
       className={
-        // Kortets ramme og farve ligger nu på <li>, så penge-linjen kan
-        // ligge inde i det samme kort som selve afkrydsningen.
-        // "overflow-hidden" holder skillelinjen inden for de runde hjørner.
-        "overflow-hidden rounded-xl border " +
+        // Kortets ramme og farve ligger på <li>, så penge-linjen kan ligge
+        // i det samme kort som selve afkrydsningen. "overflow-hidden" holder
+        // skillelinjen inden for de runde hjørner.
+        //
+        // Klarede vaner tones NED (opacity), så de lyse kort, der er tilbage,
+        // er dem, øjet fanger - man kan se "hvad mangler jeg" på et blik.
+        "overflow-hidden rounded-xl border transition-opacity " +
         (gjort
-          ? "border-emerald-500 bg-emerald-500/10"
+          ? "border-slate-800 bg-slate-800/50 opacity-55"
           : "border-slate-700 bg-slate-800")
       }
     >
