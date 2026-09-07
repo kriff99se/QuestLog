@@ -30,6 +30,21 @@ export function RedigerVaner({ vaner, setVaner }: Props) {
     setVaner((gamle) => gamle.filter((vane) => vane.id !== id));
   }
 
+  // Flyt en vane én plads op (retning -1) eller ned (retning +1).
+  // Rækkefølgen i listen er den, vanerne vises i på "Hjem"-skærmen.
+  function flytVane(id: string, retning: -1 | 1) {
+    setVaner((gamle) => {
+      const i = gamle.findIndex((v) => v.id === id);
+      const j = i + retning;
+      // Er vi allerede yderst? Så gør vi ingenting.
+      if (i === -1 || j < 0 || j >= gamle.length) return gamle;
+      const ny = [...gamle];
+      // Byt de to vaner om.
+      [ny[i], ny[j]] = [ny[j], ny[i]];
+      return ny;
+    });
+  }
+
   // Læg en ny, tom vane nederst. Den får et id ud fra tidspunktet lige nu,
   // så to nye vaner aldrig kan få samme id.
   function tilfoejVane() {
@@ -45,7 +60,7 @@ export function RedigerVaner({ vaner, setVaner }: Props) {
   return (
     <div className="flex flex-col gap-3">
       <ul className="flex flex-col gap-3">
-        {vaner.map((vane) => (
+        {vaner.map((vane, index) => (
           <li
             key={vane.id}
             className="flex flex-col gap-3 rounded-xl border border-slate-700 bg-slate-800 p-4"
@@ -65,6 +80,27 @@ export function RedigerVaner({ vaner, setVaner }: Props) {
                 onChange={(e) => opdaterVane(vane.id, { navn: e.target.value })}
                 className="flex-1 rounded-lg border border-slate-600 bg-slate-900 px-3 py-2"
               />
+              {/* Flyt vanen op/ned - ændrer rækkefølgen på Hjem-skærmen. */}
+              <div className="flex flex-none flex-col">
+                <button
+                  type="button"
+                  onClick={() => flytVane(vane.id, -1)}
+                  disabled={index === 0}
+                  aria-label="Flyt op"
+                  className="flex-1 rounded-t-lg border border-slate-600 px-2 text-xs text-slate-300 hover:bg-slate-700 disabled:opacity-30"
+                >
+                  ▲
+                </button>
+                <button
+                  type="button"
+                  onClick={() => flytVane(vane.id, 1)}
+                  disabled={index === vaner.length - 1}
+                  aria-label="Flyt ned"
+                  className="flex-1 rounded-b-lg border border-t-0 border-slate-600 px-2 text-xs text-slate-300 hover:bg-slate-700 disabled:opacity-30"
+                >
+                  ▼
+                </button>
+              </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
