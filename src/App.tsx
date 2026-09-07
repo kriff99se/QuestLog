@@ -17,6 +17,7 @@ import {
 } from "./streaks";
 import { StreakBanner } from "./StreakBanner";
 import { StatusStribe } from "./StatusStribe";
+import { DagNote } from "./DagNote";
 import { TodoListe } from "./TodoListe";
 import { Fejring } from "./Fejring";
 import { Historik } from "./Historik";
@@ -42,6 +43,9 @@ export default function App() {
 
   // Alle opgaver på to-do listen. Starter som en tom liste.
   const [todos, setTodos] = useLocalStorage<Todo[]>("todos", []);
+
+  // Dagbogs-noter, ét stykke tekst pr. dato. Starter som et tomt objekt.
+  const [noter, setNoter] = useLocalStorage<Record<string, string>>("noter", {});
 
   // Engangs-opdatering: "Ingen snus"-vaner fra før penge-funktionen mangler
   // feltet "sparerPrDag". Hvis det aldrig er sat, giver vi den 60 kr/dag,
@@ -81,6 +85,20 @@ export default function App() {
     });
   }
 
+  // Skriver (eller rydder) dagens note.
+  function saetNote(tekst: string) {
+    setNoter((tidligere) => {
+      const ny = { ...tidligere };
+      if (tekst.trim() === "") {
+        // Tom note: fjern den helt, så objektet ikke fyldes med tomme strenge.
+        delete ny[dato];
+      } else {
+        ny[dato] = tekst;
+      }
+      return ny;
+    });
+  }
+
   // Sletter ALT og starter forfra. NulstilAlt har allerede spurgt to gange,
   // så her gør vi bare rent: alle data tilbage til deres startværdi.
   function nulstilAlt() {
@@ -88,6 +106,7 @@ export default function App() {
     setAfkrydsninger({});
     setIndstillinger({ taerskel: 7 });
     setTodos([]);
+    setNoter({});
     setVisning("i-dag");
   }
 
@@ -259,6 +278,9 @@ export default function App() {
               ))}
             </ul>
 
+            {/* Dagbogs-note til i dag. */}
+            <DagNote note={noter[dato] ?? ""} onNote={saetNote} />
+
             {/* Ugen længere nede - resten står i stribjen øverst. */}
             <StreakBanner
               streak={dagsStreak.dage}
@@ -280,6 +302,7 @@ export default function App() {
           <Historik
             vaner={vaner}
             afkrydsninger={afkrydsninger}
+            noter={noter}
             taerskel={taerskel}
             iDag={dato}
           />

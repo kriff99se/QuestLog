@@ -7,6 +7,7 @@ import {
   tommeFoerMaaned,
   maanedNavn,
   dagIMaaned,
+  datoLang,
   ugensDatoer,
   dagenFoer,
 } from "./datoer";
@@ -14,8 +15,9 @@ import {
 type Props = {
   vaner: Vane[];
   afkrydsninger: Afkrydsninger;
+  noter: Record<string, string>; // dagbogs-noter pr. dato
   taerskel: number;
-  iDag: string; // dagens dato (kan være flyttet af testværktøjet)
+  iDag: string; // dagens dato
 };
 
 // Ugedags-overskrifterne i kalenderen. Ugen starter om mandag.
@@ -24,12 +26,22 @@ const UGEDAGE = ["ma", "ti", "on", "to", "fr", "lø", "sø"];
 // En kalender-visning: én måned ad gangen, hvor hver dag er farvet efter,
 // hvor godt den gik. Grøn = du nåede tærsklen, gul = du gjorde noget men
 // ikke nok, grå = ingenting.
-export function Historik({ vaner, afkrydsninger, taerskel, iDag }: Props) {
+export function Historik({
+  vaner,
+  afkrydsninger,
+  noter,
+  taerskel,
+  iDag,
+}: Props) {
   // Hvilken måned vi kigger på. Starter på den måned, "i dag" ligger i.
   const [vist, setVist] = useState(() => {
     const [aar, maaned] = iDag.split("-").map(Number);
     return { aar, maaned0: maaned - 1 }; // maaned0 er 0-baseret
   });
+
+  // Hvilken dag i kalenderen der er trykket på (eller null). Bruges til
+  // dag-detaljerne under kalenderen.
+  const [valgtDato, setValgtDato] = useState<string | null>(null);
 
   // Gå en måned frem eller tilbage. Vi lader Date klare årsskifte selv.
   function skiftMaaned(retning: number) {
@@ -125,12 +137,13 @@ export function Historik({ vaner, afkrydsninger, taerskel, iDag }: Props) {
           <div key={"tom-" + i} />
         ))}
 
-        {/* Én rude pr. dag i måneden. */}
+        {/* Én rude pr. dag i måneden. Tryk for at se detaljer om dagen. */}
         {datoer.map((dato) => {
           const antal = antalGjortPaaDato(vaner, afkrydsninger, dato);
           const groen = antal >= taerskel;
           const erIDag = dato === iDag;
           const erFremtid = dato > iDag;
+          const harNote = Boolean(noter[dato]);
 
           // Baggrundsfarve efter hvor godt dagen gik.
           let farve = "bg-slate-800 text-slate-500";
@@ -138,21 +151,44 @@ export function Historik({ vaner, afkrydsninger, taerskel, iDag }: Props) {
           else if (antal > 0) farve = "bg-amber-500/25 text-amber-200";
 
           return (
-            <div
+            <button
               key={dato}
+              type="button"
+              onClick={() =>
+                setValgtDato((d) => (d === dato ? null : dato))
+              }
               title={`${antal} af ${vaner.length} vaner`}
               className={
-                "flex aspect-square items-center justify-center rounded-md text-sm " +
+                "relative flex aspect-square items-center justify-center rounded-md text-sm " +
                 farve +
                 (erFremtid ? " opacity-40" : "") +
-                (erIDag ? " ring-2 ring-emerald-400" : "")
+                (dato === valgtDato
+                  ? " ring-2 ring-sky-400"
+                  : erIDag
+                    ? " ring-2 ring-emerald-400"
+                    : "")
               }
             >
               {dagIMaaned(dato)}
-            </div>
+              {/* Lille prik hvis dagen har en note. */}
+              {harNote && (
+                <span className="absolute bottom-1 h-1 w-1 rounded-full bg-current opacity-70" />
+              )}
+            </button>
           );
         })}
       </div>
+
+      {/* Detaljer om den valgte dag. */}
+      {valgtDato && (
+        <DagDetaljer
+          dato={valgtDato}
+          vaner={vaner}
+          dagen={afkrydsninger[valgtDato] ?? {}}
+          note={noter[valgtDato] ?? ""}
+          onLuk={() => setValgtDato(null)}
+        />
+      )}
 
       {/* Lille opsummering + forklaring på farverne. */}
       <p className="text-sm text-slate-400">
@@ -248,6 +284,62 @@ function UgeRaekke({
         {uge.groenne}/7
       </span>
       <span className="w-4 flex-none">{erBedste ? "🏆" : ""}</span>
+    </div>
+  );
+}
+
+// Detaljer om én dag: hvilke vaner blev klaret, og dagens note.
+function DagDetaljer({
+  dato,
+  vaner,
+  dagen,
+  note,
+  onLuk,
+}: {
+  dato: string;
+  vaner: Vane[];
+  dagen: { [vaneId: string]: boolean };
+  note: string;
+  onLuk: () => void;
+}) {
+  const klarede = vaner.filter((v) => dagen[v.id]);
+
+  return (
+    <div className="flex flex-col gap-2 rounded-xl border border-slate-700 bg-slate-800 p-3">
+      <div className="flex items-start justify-between gap-2">
+        <span className="text-sm font-semibold text-slate-200 first-letter:uppercase">
+          {datoLang(dato)}
+        </span>
+        <button
+          type="button"
+          onClick={onLuk}
+          aria-label="Luk"
+          className="flex-none rounded-md px-2 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+        >
+          ✕
+        </button>
+      </div>
+
+      {klarede.length > 0 ? (
+        <ul className="flex flex-wrap gap-1.5">
+          {klarede.map((v) => (
+            <li
+              key={v.id}
+              className="rounded-full bg-slate-900 px-2 py-0.5 text-xs text-slate-300"
+            >
+              {v.ikon} {v.navn}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-xs text-slate-500">Ingen vaner krydset af.</p>
+      )}
+
+      {note && (
+        <p className="whitespace-pre-wrap border-t border-slate-700 pt-2 text-sm text-slate-300">
+          {note}
+        </p>
+      )}
     </div>
   );
 }

@@ -1,7 +1,13 @@
 import { useRef, type ChangeEvent } from "react";
 
 // De nøgler i localStorage, som appen bruger. Alt andet rører vi ikke.
-const NOEGLER = ["vaner", "afkrydsninger", "indstillinger", "todos"] as const;
+const NOEGLER = [
+  "vaner",
+  "afkrydsninger",
+  "indstillinger",
+  "todos",
+  "noter",
+] as const;
 
 // To knapper nederst i appen: gem alle data som en .json-fil, eller
 // læs en tidligere fil ind igen. Nyttigt fordi data ellers kun lever
