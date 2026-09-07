@@ -1,11 +1,14 @@
 import { useState, type ReactNode } from "react";
 import type { Vane, Afkrydsninger } from "./types";
-import { antalGjortPaaDato } from "./streaks";
+import { antalGjortPaaDato, erGroenDag } from "./streaks";
+import { pointForDatoer } from "./point";
 import {
   maanedensDatoer,
   tommeFoerMaaned,
   maanedNavn,
   dagIMaaned,
+  ugensDatoer,
+  dagenFoer,
 } from "./datoer";
 
 type Props = {
@@ -41,6 +44,54 @@ export function Historik({ vaner, afkrydsninger, taerskel, iDag }: Props) {
   const groenneDage = datoer.filter(
     (dato) => antalGjortPaaDato(vaner, afkrydsninger, dato) >= taerskel,
   ).length;
+
+  // --- Uge for uge ---
+  // Én række pr. uge fra denne uge og bagud til den uge, hvor den første
+  // afkrydsning ligger. Så kan man se, hvornår man har klaret det bedst.
+  const alleDatoer = Object.keys(afkrydsninger).sort();
+  const foersteDato = alleDatoer[0];
+  const denneUgeMandag = ugensDatoer(iDag)[0];
+  const stopMandag = foersteDato ? ugensDatoer(foersteDato)[0] : denneUgeMandag;
+
+  const uger: {
+    mandag: string;
+    dage: { dato: string; groen: boolean; fremtid: boolean }[];
+    groenne: number;
+    point: number;
+    erDenneUge: boolean;
+  }[] = [];
+
+  let mandag = denneUgeMandag;
+  // "guard" er bare en sikkerhedsstopper, så vi aldrig kan løkke i det uendelige.
+  for (let guard = 0; mandag >= stopMandag && guard < 260; guard++) {
+    const ugeDatoer = ugensDatoer(mandag);
+    const dage = ugeDatoer.map((d) => ({
+      dato: d,
+      groen: d <= iDag && erGroenDag(vaner, afkrydsninger, d, taerskel),
+      fremtid: d > iDag,
+    }));
+    const synlige = ugeDatoer.filter((d) => d <= iDag);
+    uger.push({
+      mandag,
+      dage,
+      groenne: dage.filter((d) => d.groen).length,
+      point: pointForDatoer(vaner, afkrydsninger, synlige),
+      erDenneUge: mandag === denneUgeMandag,
+    });
+    // Gå til mandagen i ugen før.
+    mandag = ugensDatoer(dagenFoer(mandag))[0];
+  }
+
+  // Den bedste uge = flest grønne dage (point som tie-breaker).
+  const bedste = uger.reduce(
+    (b, u) =>
+      u.groenne > b.groenne || (u.groenne === b.groenne && u.point > b.point)
+        ? u
+        : b,
+    uger[0],
+  );
+  // Kun kron en "bedste uge", hvis der faktisk er noget at kåre.
+  const harBedste = bedste && bedste.groenne > 0;
 
   return (
     <div className="flex flex-col gap-4">
@@ -113,6 +164,90 @@ export function Historik({ vaner, afkrydsninger, taerskel, iDag }: Props) {
         <Forklaring farve="bg-amber-500/25">Noget gjort</Forklaring>
         <Forklaring farve="bg-slate-800">Ingenting</Forklaring>
       </div>
+
+      {/* Uge for uge - så man kan konkurrere mod sig selv. */}
+      <div className="mt-2 flex flex-col gap-2 border-t border-slate-700 pt-4">
+        <h2 className="text-sm font-semibold text-slate-300">Uge for uge</h2>
+        {harBedste && (
+          <p className="text-sm text-slate-400">
+            Din bedste uge: {bedste.groenne} grønne{" "}
+            {bedste.groenne === 1 ? "dag" : "dage"} 🏆
+          </p>
+        )}
+        <div className="flex flex-col gap-1">
+          {uger.map((uge) => (
+            <UgeRaekke
+              key={uge.mandag}
+              uge={uge}
+              erBedste={harBedste && uge.mandag === bedste.mandag}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// "2026-09-07" -> "7. sep" (kort, uden årstal).
+function kortDato(iso: string): string {
+  const [aar, maaned, dag] = iso.split("-").map(Number);
+  return new Date(aar, maaned - 1, dag)
+    .toLocaleDateString("da-DK", { day: "numeric", month: "short" })
+    .replaceAll(".", "");
+}
+
+// Én uge i uge-for-uge-listen: dato-interval + et 7-felts spor + tælleren.
+function UgeRaekke({
+  uge,
+  erBedste,
+}: {
+  uge: {
+    dage: { dato: string; groen: boolean; fremtid: boolean }[];
+    groenne: number;
+    point: number;
+    erDenneUge: boolean;
+  };
+  erBedste: boolean;
+}) {
+  const label =
+    kortDato(uge.dage[0].dato) + "–" + kortDato(uge.dage[6].dato);
+
+  return (
+    <div
+      title={`${uge.point} point`}
+      className={
+        "flex items-center gap-3 rounded-lg px-2 py-1.5 " +
+        (erBedste ? "bg-emerald-500/10" : "")
+      }
+    >
+      <span className="w-28 flex-none text-xs text-slate-400">
+        {label}
+        {uge.erDenneUge && (
+          <span className="text-emerald-400"> · nu</span>
+        )}
+      </span>
+
+      {/* 7 små felter - ét pr. dag i ugen. */}
+      <div className="flex flex-1 gap-0.5">
+        {uge.dage.map((d) => (
+          <span
+            key={d.dato}
+            className={
+              "h-4 flex-1 rounded-sm " +
+              (d.groen
+                ? "bg-emerald-500"
+                : d.fremtid
+                  ? "bg-slate-800"
+                  : "bg-slate-700")
+            }
+          />
+        ))}
+      </div>
+
+      <span className="w-10 flex-none text-right text-sm font-semibold text-slate-200">
+        {uge.groenne}/7
+      </span>
+      <span className="w-4 flex-none">{erBedste ? "🏆" : ""}</span>
     </div>
   );
 }

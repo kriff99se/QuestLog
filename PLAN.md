@@ -289,6 +289,15 @@ Psykologiske greb der skal gøre det lettere at blive ved.
   200, 365 - derefter næste hundrede. Udnytter "goal-gradient"-effekten:
   motivationen stiger, jo tættere man er på et mål.
 
+**3. "Uge for uge" i historikken** (`src/Historik.tsx`)
+- Under månedskalenderen: én række pr. uge (mandag-søndag) fra denne uge og
+  bagud til den første registrerede dag. Hver række har et 7-felts spor
+  (grønne felter = grønne dage), tælleren "X/7", og point-tallet i en
+  tooltip. Ugen med flest grønne dage får 🏆 og en grøn baggrund, og der
+  står "Din bedste uge: N grønne dage" øverst. Man kan altså konkurrere
+  mod sig selv uge efter uge.
+- Ny hjælper `pointForDatoer(...)` i `point.ts`.
+
 ### Ekstra: sikkerhedskopi (backup) af data
 
 Fordi data kun lever ét sted (den browser / telefon), er der to knapper

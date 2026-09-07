@@ -38,6 +38,23 @@ export function beregnSamledePoint(
   return sum;
 }
 
+// Point tjent på en bestemt liste af datoer (fx dagene i én uge).
+// Bruges til uge-for-uge-oversigten i historikken.
+export function pointForDatoer(
+  vaner: Vane[],
+  afkrydsninger: Afkrydsninger,
+  datoer: string[],
+): number {
+  let sum = 0;
+  for (const dato of datoer) {
+    const dagen = afkrydsninger[dato] ?? {};
+    for (const vane of vaner) {
+      if (dagen[vane.id]) sum += vane.point;
+    }
+  }
+  return sum;
+}
+
 // Hver opgave på to-do listen, der er krydset af som færdig, giver
 // dette antal point. Sat lavt (samme som den nemmeste vane), så opgaver
 // er en lille bonus - vanerne er stadig den store kilde til point.
