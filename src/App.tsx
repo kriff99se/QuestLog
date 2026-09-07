@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, type ReactNode } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocalStorage } from "./useLocalStorage";
 import { STANDARD_VANER } from "./vaner";
 import type { Afkrydsninger, Indstillinger, Todo } from "./types";
@@ -22,6 +22,7 @@ import { Fejring } from "./Fejring";
 import { Historik } from "./Historik";
 import { Backup } from "./Backup";
 import { NulstilAlt } from "./NulstilAlt";
+import { BundMenu, type Visning } from "./BundMenu";
 
 export default function App() {
   // Vanerne. Første gang appen åbnes, bruges standardlisten med de 10 vaner.
@@ -58,9 +59,7 @@ export default function App() {
   }, [vaner, setVaner]);
 
   // Hvilken skærm vi kigger på. Gemmes IKKE - appen starter altid på "i-dag".
-  const [visning, setVisning] = useState<
-    "i-dag" | "rediger" | "todo" | "historik"
-  >("i-dag");
+  const [visning, setVisning] = useState<Visning>("i-dag");
 
   // Dagens dato som "2026-09-06". Appen arbejder altid med i dag.
   const dato = iDagISO();
@@ -185,7 +184,8 @@ export default function App() {
     // "clip" og ikke "hidden", fordi "hidden" ville ødelægge "sticky"-kortet
     // længere nede (level-kortet der klæber fast øverst).
     <div className="min-h-screen overflow-x-clip bg-slate-900 text-slate-100 p-4 sm:p-6">
-      <div className="mx-auto flex max-w-md flex-col gap-6">
+      {/* "pb-24": plads i bunden, så indholdet ikke gemmer sig bag bund-menuen. */}
+      <div className="mx-auto flex max-w-md flex-col gap-6 pb-24">
         <header className="flex flex-col gap-1">
           <h1 className="text-3xl font-bold text-emerald-400">QuestLog</h1>
           <p className="text-slate-400 first-letter:uppercase">
@@ -195,35 +195,6 @@ export default function App() {
             {antalGjort} af {vaner.length} vaner klaret
           </p>
         </header>
-
-        {/* Menu til at skifte mellem skærmene. "flex-wrap" lader knapperne
-            bryde om på en ny linje, hvis der ikke er plads (fx på mobil). */}
-        <nav className="flex flex-wrap gap-2">
-          <FaneKnap
-            aktiv={visning === "i-dag"}
-            onClick={() => setVisning("i-dag")}
-          >
-            I dag
-          </FaneKnap>
-          <FaneKnap
-            aktiv={visning === "todo"}
-            onClick={() => setVisning("todo")}
-          >
-            To-do
-          </FaneKnap>
-          <FaneKnap
-            aktiv={visning === "rediger"}
-            onClick={() => setVisning("rediger")}
-          >
-            Rediger vaner
-          </FaneKnap>
-          <FaneKnap
-            aktiv={visning === "historik"}
-            onClick={() => setVisning("historik")}
-          >
-            Historik
-          </FaneKnap>
-        </nav>
 
         {visning === "i-dag" && (
           <>
@@ -278,10 +249,6 @@ export default function App() {
           </>
         )}
 
-        {visning === "rediger" && (
-          <RedigerVaner vaner={vaner} setVaner={setVaner} />
-        )}
-
         {visning === "todo" && (
           <TodoListe todos={todos} setTodos={setTodos} />
         )}
@@ -295,39 +262,20 @@ export default function App() {
           />
         )}
 
-        <Backup />
-
-        <NulstilAlt onNulstil={nulstilAlt} />
+        {visning === "rediger" && (
+          <>
+            <RedigerVaner vaner={vaner} setVaner={setVaner} />
+            <Backup />
+            <NulstilAlt onNulstil={nulstilAlt} />
+          </>
+        )}
       </div>
 
       {/* Fejringen ligger uden for midterspalten, så den kan dække hele skærmen. */}
       <Fejring level={fejrLevel} onLuk={() => setFejrLevel(null)} />
-    </div>
-  );
-}
 
-// Én knap i menuen. "aktiv" styrer om knappen ser valgt ud.
-function FaneKnap({
-  aktiv,
-  onClick,
-  children,
-}: {
-  aktiv: boolean;
-  onClick: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={
-        "rounded-lg px-3 py-1.5 text-sm transition-colors " +
-        (aktiv
-          ? "bg-emerald-500 text-slate-900"
-          : "bg-slate-800 text-slate-300 hover:bg-slate-700")
-      }
-    >
-      {children}
-    </button>
+      {/* Bund-menuen: fast i bunden af skærmen. */}
+      <BundMenu visning={visning} onVaelg={setVisning} />
+    </div>
   );
 }
