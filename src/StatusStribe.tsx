@@ -25,13 +25,25 @@ export function StatusStribe({
 
   return (
     <div className="flex flex-col gap-2 rounded-xl border border-slate-700 bg-slate-800 p-3 shadow-md shadow-slate-950/40">
-      {/* Linje 1: level til venstre, streak til højre. */}
-      <div className="flex items-center justify-between">
-        <span className="flex items-center gap-1.5 font-semibold text-slate-200">
-          <span className="text-lg">{titel.emoji}</span>
-          Level {level}
+      {/* Linje 1: titel + level til venstre, streak til højre. */}
+      <div className="flex items-center justify-between gap-2">
+        <span className="flex min-w-0 items-center gap-2">
+          {/* Billede hvis titlen har et, ellers emojien. */}
+          {titel.billede ? (
+            <img
+              src={titel.billede}
+              alt=""
+              className="h-7 w-7 flex-none rounded-md object-cover"
+            />
+          ) : (
+            <span className="flex-none text-xl">{titel.emoji}</span>
+          )}
+          <span className="truncate font-semibold text-emerald-400">
+            {titel.navn}
+          </span>
+          <span className="flex-none text-xs text-slate-500">Lvl {level}</span>
         </span>
-        <span className="flex items-center gap-1 font-semibold text-orange-400">
+        <span className="flex flex-none items-center gap-1 font-semibold text-orange-400">
           🔥 {streak}
         </span>
       </div>

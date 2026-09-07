@@ -7,7 +7,6 @@ import { VaneKort } from "./VaneKort";
 import { beregnSamledePoint, beregnOpgavePoint, beregnLevel } from "./point";
 import { PointOversigt } from "./PointOversigt";
 import { findTitel } from "./titler";
-import { TitelBanner } from "./TitelBanner";
 import { RedigerVaner } from "./RedigerVaner";
 import {
   samletStreak,
@@ -249,8 +248,6 @@ export default function App() {
               ugensDage={ugensDage}
               onTaerskel={saetTaerskel}
             />
-
-            <TitelBanner titel={titel} level={levelInfo.level} />
 
             <PointOversigt samledePoint={samledePoint} levelInfo={levelInfo} />
           </>
