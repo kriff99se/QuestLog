@@ -276,10 +276,15 @@ krydse dagens vaner af. Løsningen:
   streg-ikoner (Hjem / To-do / Historik / Rediger). Føles som en iOS-app.
   "Sikkerhedskopi" + "Nulstil alt" flyttet ind under "Rediger".
 - **Kompakt status-stribe** (`StatusStribe.tsx`) klæber fast øverst på
-  Hjem: level-titel + level + streak på én linje, en fremskridtsbjælke mod
-  dagens grønne dag, og "du er tæt på"-linjen. Alt det vigtige på tre
-  linjer. Det gamle `TitelBanner`-kort er sløjfet - titlen (og et evt.
-  billede) vises nu i stribjen, så den altid er øverst og synlig.
+  Hjem og samler alt det vigtige på fire tynde linjer:
+  1. level-titel + level ... streak
+  2. "1.020 point · 60 til Level 9"
+  3. fremskridtsbjælke mod dagens grønne dag
+  4. "du er tæt på"-linjen (🎯)
+  De gamle `TitelBanner`- og `PointOversigt`-kort er begge sløjfet - deres
+  indhold (titel + billede, point i alt, point til næste level) er flyttet
+  op i stribjen, så det er øverst og altid synligt. Under vanerne står nu
+  kun "Denne uge"-kortet.
 - **Vanerne kommer nu FØRST** - lige under stribjen. Klarede vaner tones
   ned (opacity), så de lyse kort, der er tilbage, er dem øjet fanger.
 - Det store streak-kort er slanket til et "Denne uge"-kort (uge-spor +

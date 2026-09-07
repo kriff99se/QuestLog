@@ -5,7 +5,6 @@ import type { Afkrydsninger, Indstillinger, Todo } from "./types";
 import { iDagISO, datoLang, ugensDatoer, ugedagKort } from "./datoer";
 import { VaneKort } from "./VaneKort";
 import { beregnSamledePoint, beregnOpgavePoint, beregnLevel } from "./point";
-import { PointOversigt } from "./PointOversigt";
 import { findTitel } from "./titler";
 import { RedigerVaner } from "./RedigerVaner";
 import {
@@ -206,6 +205,8 @@ export default function App() {
               <StatusStribe
                 titel={titel}
                 level={levelInfo.level}
+                samledePoint={samledePoint}
+                pointTilNaeste={levelInfo.pointTilNaeste}
                 streak={dagsStreak.dage}
                 gjortIDag={antalGjort}
                 taerskel={taerskel}
@@ -238,7 +239,7 @@ export default function App() {
               ))}
             </ul>
 
-            {/* Detaljer længere nede: ugen, level og titel. */}
+            {/* Ugen længere nede - resten står i stribjen øverst. */}
             <StreakBanner
               streak={dagsStreak.dage}
               skjoldBrugt={dagsStreak.skjoldBrugt}
@@ -248,8 +249,6 @@ export default function App() {
               ugensDage={ugensDage}
               onTaerskel={saetTaerskel}
             />
-
-            <PointOversigt samledePoint={samledePoint} levelInfo={levelInfo} />
           </>
         )}
 

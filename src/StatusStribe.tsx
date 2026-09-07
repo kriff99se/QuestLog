@@ -1,8 +1,10 @@
 import type { Titel } from "./titler";
 
 type Props = {
-  titel: Titel; // nuværende level-titel (vi bruger emojien)
+  titel: Titel; // nuværende level-titel (navn + emoji/billede)
   level: number;
+  samledePoint: number; // point i alt
+  pointTilNaeste: number; // point der mangler til næste level
   streak: number; // samlet dags-streak
   gjortIDag: number; // hvor mange vaner er klaret i dag
   taerskel: number; // hvor mange der skal til for en grøn dag
@@ -10,11 +12,13 @@ type Props = {
 };
 
 // En kompakt status-stribe, der klæber fast øverst på "Hjem"-skærmen.
-// Den samler det vigtigste på tre linjer: level + streak, dagens fremskridt,
-// og hvad man er tæt på. Så kan man se sin status uden at scrolle.
+// Den samler det vigtigste: titel + level + streak, point-status,
+// dagens fremskridt, og hvad man er tæt på. Alt uden at scrolle.
 export function StatusStribe({
   titel,
   level,
+  samledePoint,
+  pointTilNaeste,
   streak,
   gjortIDag,
   taerskel,
@@ -48,7 +52,13 @@ export function StatusStribe({
         </span>
       </div>
 
-      {/* Linje 2: dagens fremskridt mod en grøn dag. */}
+      {/* Linje 2: point i alt + hvad der mangler til næste level. */}
+      <p className="text-xs text-slate-500">
+        {samledePoint.toLocaleString("da-DK")} point ·{" "}
+        {pointTilNaeste.toLocaleString("da-DK")} til Level {level + 1}
+      </p>
+
+      {/* Linje 3: dagens fremskridt mod en grøn dag. */}
       <div className="h-2 w-full overflow-hidden rounded-full bg-slate-700">
         <div
           className={
@@ -59,7 +69,7 @@ export function StatusStribe({
         />
       </div>
 
-      {/* Linje 3: hvad man er tæt på. */}
+      {/* Linje 4: hvad man er tæt på. */}
       <p
         className={
           "text-sm font-medium " +
