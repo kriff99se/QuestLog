@@ -189,11 +189,31 @@ export default function App() {
     <div className="min-h-screen overflow-x-clip bg-slate-900 text-slate-100 p-4 sm:p-6">
       {/* "pb-24": plads i bunden, så indholdet ikke gemmer sig bag bund-menuen. */}
       <div className="mx-auto flex max-w-md flex-col gap-5 pb-24">
-        <header className="flex flex-col">
-          <h1 className="text-xl font-bold text-emerald-400">QuestLog</h1>
-          <p className="text-sm text-slate-500 first-letter:uppercase">
-            {datoLang(dato)}
-          </p>
+        <header className="flex items-center gap-2.5">
+          {/* Lille logo-mærke - samme flueben som app-ikonet på hjemmeskærmen. */}
+          <span className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-slate-800 ring-1 ring-inset ring-white/5">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#34d399"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m5 13 4.5 4.5L19 7" />
+            </svg>
+          </span>
+          <div className="flex flex-col">
+            <h1 className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-xl font-extrabold tracking-tight text-transparent">
+              QuestLog
+            </h1>
+            <p className="text-xs text-slate-500 first-letter:uppercase">
+              {datoLang(dato)}
+            </p>
+          </div>
         </header>
 
         {visning === "i-dag" && (
