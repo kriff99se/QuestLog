@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useLocalStorage } from "./useLocalStorage";
 import { STANDARD_VANER } from "./vaner";
 import type { Afkrydsninger, Indstillinger, Todo } from "./types";
-import { iDagISO, datoLang, ugensDatoer, ugedagKort } from "./datoer";
+import { iDagISO, ugensDatoer, ugedagKort } from "./datoer";
 import { VaneKort } from "./VaneKort";
 import { beregnSamledePoint, beregnOpgavePoint, beregnLevel } from "./point";
 import { findTitel } from "./titler";
@@ -208,12 +208,12 @@ export default function App() {
     <div className="min-h-screen overflow-x-clip bg-slate-900 text-slate-100 p-4 sm:p-6">
       {/* "pb-24": plads i bunden, så indholdet ikke gemmer sig bag bund-menuen. */}
       <div className="mx-auto flex max-w-md flex-col gap-5 pb-24">
-        <header className="flex items-center gap-2.5">
-          {/* Lille logo-mærke - samme flueben som app-ikonet på hjemmeskærmen. */}
-          <span className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-slate-800 ring-1 ring-inset ring-white/5">
+        <header className="flex items-center gap-3">
+          {/* Logo-mærke - samme flueben som app-ikonet på hjemmeskærmen. */}
+          <span className="flex h-11 w-11 flex-none items-center justify-center rounded-xl bg-slate-800 ring-1 ring-inset ring-white/5">
             <svg
-              width="20"
-              height="20"
+              width="26"
+              height="26"
               viewBox="0 0 24 24"
               fill="none"
               stroke="#34d399"
@@ -225,14 +225,9 @@ export default function App() {
               <path d="m5 13 4.5 4.5L19 7" />
             </svg>
           </span>
-          <div className="flex flex-col">
-            <h1 className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-xl font-extrabold tracking-tight text-transparent">
-              QuestLog
-            </h1>
-            <p className="text-xs text-slate-500 first-letter:uppercase">
-              {datoLang(dato)}
-            </p>
-          </div>
+          <h1 className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-2xl font-extrabold tracking-tight text-transparent">
+            QuestLog
+          </h1>
         </header>
 
         {visning === "i-dag" && (
