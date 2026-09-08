@@ -324,6 +324,26 @@ Psykologiske greb der skal gøre det lettere at blive ved.
   mod sig selv uge efter uge.
 - Ny hjælper `pointForDatoer(...)` i `point.ts`.
 
+### Ekstra: trofæer (achievements)
+
+- `achievements.ts`: ~41 trofæer på tværs af app'ens mekanik - streaks
+  (1/3/7/14/30/60/100/200/365), levels (2→100), point i alt, antal
+  afkrydsninger, perfekte dage (alle vaner én dag), penge sparet, noter,
+  to-do, "prøvet alt", "comeback". Hvert har en tier (bronze → sølv →
+  guld → platin → legendarisk) og en værdi (20 → 5.000).
+- **Trofæer beregnes altid ud fra data** - de gemmes ikke (samme princip
+  som point og streaks). `opnaaedeTrofaeer(data)` filtrerer listen.
+- `trofaeScore` = summen af de opnåede værdier. Det er en **separat**
+  progression fra level - vanerne driver stadig level'et, så et trofæ ikke
+  kan skabe en cirkel ("nå level 10" → point → level).
+- Ny **"Trofæer"-fane** (bund-menuen har 5 faner nu). `Trofaeer.tsx` viser
+  listen delt i "Opnået" og "Mangler" med fremskridtsbjælke.
+- **Fejring når et nyt trofæ låses op** (`TrofaeFejring.tsx`) - App holder
+  en kø, så flere på én gang vises efter hinanden. Bemærk: `setState`-
+  updater-funktioner må ikke have sideeffekter (`.shift()` på en ref) -
+  StrictMode kalder dem to gange, og så forsvandt fejringen. Løst ved at
+  læse den nuværende værdi fra closure i stedet.
+
 ### Ekstra: historik pr. vane, dagbogs-note, flyt vaner
 
 - **Flyt rundt på vaner:** hver række i "Rediger vaner" har op/ned-pile.

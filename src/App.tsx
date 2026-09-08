@@ -25,7 +25,12 @@ import { Backup } from "./Backup";
 import { NulstilAlt } from "./NulstilAlt";
 import { BundMenu, type Visning } from "./BundMenu";
 import { Trofaeer } from "./Trofaeer";
-import type { TrofaeData } from "./achievements";
+import { TrofaeFejring } from "./TrofaeFejring";
+import {
+  opnaaedeTrofaeer,
+  type TrofaeData,
+  type Trofae,
+} from "./achievements";
 
 export default function App() {
   // Vanerne. Første gang appen åbnes, bruges standardlisten med de 10 vaner.
@@ -206,6 +211,45 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [fejrLevel]);
 
+  // --- Fejring når et nyt trofæ låses op ---
+  const opnaaedeTrofae = opnaaedeTrofaeer(trofaeData);
+  // Hvilke trofæer var låst op sidst? (Fyldes med det samme, så vi ikke
+  // fejrer alle de gamle, første gang appen åbnes.)
+  const forrigeTrofaeIder = useRef(
+    new Set(opnaaedeTrofae.map((t) => t.id)),
+  );
+  // Kø af nye trofæer der venter på at blive fejret, + det der vises nu.
+  const trofaeKoe = useRef<Trofae[]>([]);
+  const [nytTrofae, setNytTrofae] = useState<Trofae | null>(null);
+
+  // Vis det næste trofæ i køen (eller luk, hvis køen er tom).
+  function naesteTrofae() {
+    setNytTrofae(trofaeKoe.current.shift() ?? null);
+  }
+
+  // Opdag nye trofæer. Antallet stiger kun, så vi kan bruge det som signal.
+  useEffect(() => {
+    const nye = opnaaedeTrofae.filter(
+      (t) => !forrigeTrofaeIder.current.has(t.id),
+    );
+    forrigeTrofaeIder.current = new Set(opnaaedeTrofae.map((t) => t.id));
+    if (nye.length === 0) return;
+
+    trofaeKoe.current.push(...nye);
+    // Starter der ikke allerede en fejring, tager vi det første i køen.
+    if (nytTrofae === null) {
+      setNytTrofae(trofaeKoe.current.shift() ?? null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [opnaaedeTrofae.length]);
+
+  // Luk trofæ-fejringen af sig selv efter 2,8 sekunder (og gå til næste).
+  useEffect(() => {
+    if (nytTrofae === null) return;
+    const timer = setTimeout(naesteTrofae, 2800);
+    return () => clearTimeout(timer);
+  }, [nytTrofae]);
+
   // Ugens 7 dage (mandag..søndag) til uge-sporet i streak-kortet.
   const ugensDage = ugensDatoer(dato).map((d) => ({
     dato: d,
@@ -331,6 +375,9 @@ export default function App() {
 
       {/* Fejringen ligger uden for midterspalten, så den kan dække hele skærmen. */}
       <Fejring level={fejrLevel} onLuk={() => setFejrLevel(null)} />
+
+      {/* Fejring når et nyt trofæ låses op. */}
+      <TrofaeFejring trofae={nytTrofae} onLuk={naesteTrofae} />
 
       {/* Bund-menuen: fast i bunden af skærmen. */}
       <BundMenu visning={visning} onVaelg={setVisning} />
