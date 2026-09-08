@@ -14,6 +14,8 @@ import {
   antalDageVaneGjort,
   laengsteStreak,
   naesteMaal,
+  gjortIUge,
+  ugeStreak,
 } from "./streaks";
 import { StreakBanner } from "./StreakBanner";
 import { StatusStribe } from "./StatusStribe";
@@ -117,18 +119,28 @@ export default function App() {
     setVisning("i-dag");
   }
 
-  // Sæt tærsklen, men hold den mellem 1 og antallet af vaner.
+  // De daglige vaner (dem UDEN et uge-mål). Kun de tæller, når vi afgør,
+  // hvor høj "grøn dag"-tærsklen må være - ellers ville tærsklen blive
+  // uopnåelig på dage, hvor man ikke laver sine uge-vaner.
+  const antalDaglige = Math.max(
+    1,
+    vaner.filter((v) => !v.maalPrUge).length,
+  );
+
+  // Sæt tærsklen, men hold den mellem 1 og antallet af daglige vaner.
   function saetTaerskel(ny: number) {
-    const holdtIndenfor = Math.max(1, Math.min(ny, vaner.length));
+    const holdtIndenfor = Math.max(1, Math.min(ny, antalDaglige));
     setIndstillinger({ ...indstillinger, taerskel: holdtIndenfor });
   }
 
-  // Hvor mange af vanerne er klaret den valgte dag?
+  // Hvor mange af vanerne er klaret den valgte dag? (Uge-vaner tæller med
+  // her - krydser man sauna af i dag, hjælper det dagens grønne dag.)
   const antalGjort = vaner.filter((vane) => dagensAfkrydsninger[vane.id]).length;
 
   // Tærsklen vi regner med. Hvis den gemte værdi er blevet for høj (fx fordi
-  // vaner er slettet), klemmer vi den ned, så en grøn dag stadig er mulig.
-  const taerskel = Math.max(1, Math.min(indstillinger.taerskel, vaner.length));
+  // vaner er slettet eller lavet om til uge-vaner), klemmer vi den ned, så
+  // en grøn dag stadig er mulig.
+  const taerskel = Math.max(1, Math.min(indstillinger.taerskel, antalDaglige));
 
   // Samlede point og level. Point kommer fra to steder:
   // alle vane-afkrydsninger nogensinde + alle færdige to-do opgaver.
@@ -327,6 +339,13 @@ export default function App() {
                   gjort={Boolean(dagensAfkrydsninger[vane.id])}
                   streak={vaneStreak(afkrydsninger, vane.id, dato)}
                   dageGjortIAlt={antalDageVaneGjort(afkrydsninger, vane.id)}
+                  gjortIUge={gjortIUge(afkrydsninger, vane.id, dato)}
+                  ugeStreak={ugeStreak(
+                    afkrydsninger,
+                    vane.id,
+                    vane.maalPrUge ?? 0,
+                    dato,
+                  )}
                   onSkift={() => skiftVane(vane.id)}
                 />
               ))}
@@ -341,7 +360,7 @@ export default function App() {
               skjoldBrugt={dagsStreak.skjoldBrugt}
               rekord={rekordStreak}
               taerskel={taerskel}
-              antalVaner={vaner.length}
+              antalVaner={antalDaglige}
               ugensDage={ugensDage}
               onTaerskel={saetTaerskel}
             />

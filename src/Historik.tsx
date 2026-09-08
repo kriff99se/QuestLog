@@ -5,6 +5,8 @@ import {
   erGroenDag,
   vaneStreak,
   laengsteVaneStreak,
+  ugeStreak,
+  laengsteUgeStreak,
 } from "./streaks";
 import { pointForDatoer } from "./point";
 import {
@@ -74,8 +76,11 @@ export function Historik({
     (dato) => dato <= iDag && erGodDag(dato),
   ).length;
 
-  // Navnet på den valgte vane (til overskrifter).
-  const valgtVaneNavn = vaner.find((v) => v.id === valgtVane)?.navn ?? "";
+  // Den valgte vane (hele objektet) + dens navn, til overskrifter.
+  const valgtVaneObjekt = vaner.find((v) => v.id === valgtVane);
+  const valgtVaneNavn = valgtVaneObjekt?.navn ?? "";
+  // Er den valgte vane en uge-vane? Så viser vi uge-stime i stedet for dags-stime.
+  const valgtMaalPrUge = valgtVaneObjekt?.maalPrUge ?? 0;
 
   // --- Uge for uge ---
   // Én række pr. uge fra denne uge og bagud til den uge, hvor den første
@@ -253,16 +258,29 @@ export function Historik({
             {godeDageIMaaned} {godeDageIMaaned === 1 ? "dag" : "dage"} med{" "}
             {valgtVaneNavn} i {maanedNavn(vist.aar, vist.maaned0)}
           </p>
-          <p className="text-sm text-slate-500">
-            Nuværende stime:{" "}
-            <span className="font-semibold text-slate-300">
-              {vaneStreak(afkrydsninger, valgtVane, iDag)}
-            </span>{" "}
-            · rekord:{" "}
-            <span className="font-semibold text-slate-300">
-              {laengsteVaneStreak(afkrydsninger, valgtVane, iDag)}
-            </span>
-          </p>
+          {valgtMaalPrUge > 0 ? (
+            <p className="text-sm text-slate-500">
+              Uger i træk (mål: {valgtMaalPrUge}/uge):{" "}
+              <span className="font-semibold text-slate-300">
+                {ugeStreak(afkrydsninger, valgtVane, valgtMaalPrUge, iDag)}
+              </span>{" "}
+              · rekord:{" "}
+              <span className="font-semibold text-slate-300">
+                {laengsteUgeStreak(afkrydsninger, valgtVane, valgtMaalPrUge, iDag)}
+              </span>
+            </p>
+          ) : (
+            <p className="text-sm text-slate-500">
+              Nuværende stime:{" "}
+              <span className="font-semibold text-slate-300">
+                {vaneStreak(afkrydsninger, valgtVane, iDag)}
+              </span>{" "}
+              · rekord:{" "}
+              <span className="font-semibold text-slate-300">
+                {laengsteVaneStreak(afkrydsninger, valgtVane, iDag)}
+              </span>
+            </p>
+          )}
           <div className="flex flex-wrap gap-4 text-xs text-slate-500">
             <Forklaring farve="bg-emerald-500/80">Gjort</Forklaring>
             <Forklaring farve="bg-slate-800">Ikke gjort</Forklaring>

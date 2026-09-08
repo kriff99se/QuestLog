@@ -1,5 +1,10 @@
 import type { Vane, Afkrydsninger } from "./types";
-import { dagenFoer, dagenEfter } from "./datoer";
+import {
+  dagenFoer,
+  dagenEfter,
+  ugensDatoer,
+  forrigeUgesMandag,
+} from "./datoer";
 
 // Her regner vi streaks ud. Ligesom point og level bliver de aldrig gemt -
 // de beregnes altid ud fra afkrydsningerne, så de ikke kan komme i utakt.
@@ -111,6 +116,84 @@ export function vaneStreak(
     Boolean((afkrydsninger[dato] ?? {})[vaneId]),
   );
   return info.dage;
+}
+
+// --- Uge-vaner ---
+//
+// Nogle vaner skal ikke gøres hver dag, men fx 4 gange om ugen. For dem
+// giver en dags-streak ikke mening. I stedet regner vi:
+//  - hvor mange gange vanen er gjort i denne (eller en given) uge, og
+//  - hvor mange uger i træk målet er ramt ("uge-streak").
+// En uge går fra mandag til søndag (samme som uge-sporet på streak-kortet).
+
+// Hvor mange dage i ugen omkring 'datoIUgen' er vanen krydset af?
+export function gjortIUge(
+  afkrydsninger: Afkrydsninger,
+  vaneId: string,
+  datoIUgen: string,
+): number {
+  return ugensDatoer(datoIUgen).filter(
+    (d) => (afkrydsninger[d] ?? {})[vaneId],
+  ).length;
+}
+
+// Uger i træk hvor vanen er gjort mindst 'maal' gange.
+// Ligesom dags-streaken: den nuværende uge tæller kun med, hvis målet
+// allerede ER ramt. Er det ikke (ugen er "i gang"), starter vi tællingen
+// i sidste uge, så tallet ikke falder til 0 hver mandag morgen.
+export function ugeStreak(
+  afkrydsninger: Afkrydsninger,
+  vaneId: string,
+  maal: number,
+  iDag: string,
+): number {
+  if (maal <= 0) return 0;
+
+  let mandag = ugensDatoer(iDag)[0];
+
+  // Denne uge ikke i mål endnu? Så begynder vi i ugen før.
+  if (gjortIUge(afkrydsninger, vaneId, mandag) < maal) {
+    mandag = forrigeUgesMandag(mandag);
+  }
+
+  let uger = 0;
+  while (gjortIUge(afkrydsninger, vaneId, mandag) >= maal) {
+    uger += 1;
+    mandag = forrigeUgesMandag(mandag);
+  }
+  return uger;
+}
+
+// Den længste uge-streak nogensinde for en uge-vane - et "rekord",
+// der aldrig kan mistes. Vi går alle uger igennem fra den første
+// registrerede afkrydsning og frem til i dag.
+export function laengsteUgeStreak(
+  afkrydsninger: Afkrydsninger,
+  vaneId: string,
+  maal: number,
+  iDag: string,
+): number {
+  if (maal <= 0) return 0;
+
+  const datoer = Object.keys(afkrydsninger).sort();
+  if (datoer.length === 0) return 0;
+
+  let mandag = ugensDatoer(datoer[0])[0];
+  const sisteMandag = ugensDatoer(iDag)[0];
+
+  let bedste = 0;
+  let stribe = 0;
+  while (mandag <= sisteMandag) {
+    if (gjortIUge(afkrydsninger, vaneId, mandag) >= maal) {
+      stribe += 1;
+      if (stribe > bedste) bedste = stribe;
+    } else {
+      stribe = 0;
+    }
+    // Gå til mandagen i ugen efter.
+    mandag = ugensDatoer(dagenEfter(ugensDatoer(mandag)[6]))[0];
+  }
+  return bedste;
 }
 
 // Runde streak-tal, det er sjovt at ramme.

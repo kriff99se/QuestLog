@@ -136,6 +136,29 @@ export function RedigerVaner({ vaner, setVaner }: Props) {
                 />
               </label>
 
+              {/* Valgfrit: mål pr. uge. 0 = daglig vane (helt som før).
+                  Et tal fra 1-7 gør den til en uge-vane, fx Sauna 4 gange
+                  om ugen. */}
+              <label className="flex items-center gap-2 text-sm text-slate-400">
+                Mål pr. uge
+                <input
+                  type="number"
+                  min={0}
+                  max={7}
+                  value={vane.maalPrUge ?? 0}
+                  onChange={(e) =>
+                    opdaterVane(vane.id, {
+                      // Hold tallet mellem 0 og 7.
+                      maalPrUge: Math.max(
+                        0,
+                        Math.min(7, Number(e.target.value) || 0),
+                      ),
+                    })
+                  }
+                  className="w-20 rounded-lg border border-slate-600 bg-slate-900 px-2 py-1 text-slate-100"
+                />
+              </label>
+
               <button
                 type="button"
                 onClick={() => sletVane(vane.id)}
@@ -147,6 +170,12 @@ export function RedigerVaner({ vaner, setVaner }: Props) {
           </li>
         ))}
       </ul>
+
+      <p className="text-xs text-slate-500">
+        <strong>Mål pr. uge:</strong> lad den stå på 0, hvis vanen skal gøres
+        hver dag. Sæt den til fx 4, hvis vanen kun skal gøres 4 gange om ugen -
+        så viser kortet "3 / 4 i denne uge" i stedet for en dags-stime.
+      </p>
 
       <button
         type="button"

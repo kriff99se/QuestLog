@@ -52,6 +52,15 @@ export function ugensDatoer(iso: string): string[] {
   return datoer;
 }
 
+// Mandagen i ugen FØR den uge, en dato ligger i.
+// Fx: giver vi en dato i uge 37, får vi mandag i uge 36.
+// Bruges til at gå én uge tilbage ad gangen, når vi regner uge-streaks ud.
+export function forrigeUgesMandag(iso: string): string {
+  // ugensDatoer(iso)[0] = mandag i denne uge. Dagen før den er søndag i
+  // ugen inden - og mandag i DEN uge er så det, vi er ude efter.
+  return ugensDatoer(dagenFoer(ugensDatoer(iso)[0]))[0];
+}
+
 // Kort ugedag for en dato, fx "ma", "ti", "on".
 export function ugedagKort(iso: string): string {
   const [aar, maaned, dag] = iso.split("-").map(Number);

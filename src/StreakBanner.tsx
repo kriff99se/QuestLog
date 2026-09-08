@@ -14,7 +14,7 @@ type Props = {
   skjoldBrugt: boolean; // reddede streaken en misset dag?
   rekord: number; // den længste streak nogensinde
   taerskel: number; // hvor mange vaner der skal til for en grøn dag
-  antalVaner: number; // hvor mange vaner der findes i alt
+  antalVaner: number; // hvor mange DAGLIGE vaner der findes (uge-vaner tæller ikke med)
   ugensDage: UgeDag[]; // mandag..søndag i den viste uge
   onTaerskel: (ny: number) => void; // kaldes når brugeren ændrer tærsklen
 };
@@ -104,7 +104,7 @@ export function StreakBanner({
 
       {/* Tandhjul til tærskel-indstillingen. */}
       <div className="flex items-center justify-between text-xs text-slate-500">
-        <span>Grøn dag = mindst {taerskel} vaner</span>
+        <span>Grøn dag = mindst {taerskel} daglige vaner</span>
         <button
           type="button"
           onClick={() => setVisIndstilling((v) => !v)}
@@ -127,7 +127,7 @@ export function StreakBanner({
             onChange={(e) => onTaerskel(Number(e.target.value) || 1)}
             className="w-16 rounded-lg border border-slate-600 bg-slate-900 px-2 py-1 text-slate-100"
           />
-          af {antalVaner} vaner
+          af {antalVaner} daglige vaner
         </label>
       )}
     </div>

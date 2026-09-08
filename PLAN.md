@@ -374,6 +374,42 @@ nederst i appen (`src/Backup.tsx`):
   → filens indhold skrives til localStorage → siden genindlæser.
 - Testet frem og tilbage: eksport → slet data → import → alt korrekt gendannet.
 
+### Ekstra: uge-vaner (vaner der ikke skal gøres hver dag)
+
+Nogle vaner skal ikke laves hver dag - fx Fitness 5 gange om ugen, Sauna
+4 gange. Løsningen er et valgfrit felt `maalPrUge` på en `Vane`:
+
+- **`maalPrUge` er 0 / ikke sat:** helt almindelig daglig vane (uændret).
+- **`maalPrUge` er 1-7:** vanen bliver en "uge-vane".
+
+Hvad ændrer sig for en uge-vane:
+- **Kortet** (`VaneKort.tsx`): under "X point" står nu en fremskridts-linje
+  for ugen - `maalPrUge` prikker der fyldes op + teksten "3 / 4 i denne uge"
+  (grøn + "✓ Klaret i denne uge" når målet er nået). Man krydser stadig bare
+  vanen af på de dage, man gør den; ugen tælles op af sig selv.
+- **🔥-pillen** viser **uger i træk**, hvor målet er ramt ("🔥 3 uger"), i
+  stedet for dage i træk. Ny `ugeStreak(...)` + `laengsteUgeStreak(...)` i
+  `streaks.ts` (uge = mandag-søndag, samme "denne uge er i gang"-regel som
+  dags-streaken, intet skjold). Ny dato-hjælper `forrigeUgesMandag` i
+  `datoer.ts`, og `gjortIUge(...)` i `streaks.ts`.
+- **Grøn dag:** en uge-vane, der er krydset af i dag, tæller med i dagens
+  opgørelse ligesom en daglig vane (valgt af projektejeren). Men "grøn dag"-
+  **tærsklen** måles nu mod antallet af *daglige* vaner (`antalDaglige` i
+  `App.tsx`), så den ikke bliver uopnåelig på dage uden uge-vaner. Teksten på
+  streak-kortet siger nu "mindst N daglige vaner".
+- **Trofæet "perfekt dag"** kræver nu kun alle *daglige* vaner (ellers var
+  det umuligt på dage, hvor uge-vanerne ikke skal laves) - `perfekteDage` i
+  `achievements.ts`.
+- **Historik pr. vane:** vælger man en uge-vane i historik-filteret, viser
+  opsummeringen "uger i træk (mål: N/uge)" + rekord i stedet for dags-stime.
+- **Rediger vaner:** nyt felt "Mål pr. uge" (0-7) ved siden af Point og
+  Sparer kr/dag, med en kort forklaring under listen.
+- Point er **uændret** - hvert flueben giver stadig vanens point.
+
+Bemærk: eksisterende brugere har fjernet standard-vanen "Sauna" fra deres
+liste; "Fitness" er sat til `maalPrUge: 5` i appen. `STANDARD_VANER` er ikke
+ændret (ingen migrering nødvendig - feltet er bare fraværende = daglig).
+
 ### Ekstra: penge sparet pr. vane (efter Fase 7)
 
 Valgfrit felt `sparerPrDag` på en `Vane` (kroner sparet for hver dag vanen

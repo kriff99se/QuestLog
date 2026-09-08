@@ -7,25 +7,47 @@ type Props = {
   gjort: boolean; // er vanen krydset af i dag?
   streak: number; // dage i træk denne vane er holdt (0 = ingen)
   dageGjortIAlt: number; // hvor mange dage i alt vanen er krydset af
+  gjortIUge: number; // gange gjort i denne uge (kun brugt til uge-vaner)
+  ugeStreak: number; // uger i træk målet er ramt (kun brugt til uge-vaner)
   onSkift: () => void; // kaldes når brugeren klikker på kortet
 };
 
 // Ét vane-kort i listen. Et klik på selve rækken skifter mellem
 // "gjort" og "ikke gjort". Har vanen en besparelse pr. dag (fx "Ingen
 // snus"), er der desuden en lille 💰-knap nederst på kortet.
-export function VaneKort({ vane, gjort, streak, dageGjortIAlt, onSkift }: Props) {
-  // Streak-pillen bliver varmere, jo længere streaken er:
-  // gul under 7 dage, orange fra 7, rød med glød fra 30.
+export function VaneKort({
+  vane,
+  gjort,
+  streak,
+  dageGjortIAlt,
+  gjortIUge,
+  ugeStreak,
+  onSkift,
+}: Props) {
+  // Er det en uge-vane (fx "4 gange om ugen")? Så viser kortet uge-fremskridt
+  // i stedet for en dags-streak.
+  const maalPrUge = vane.maalPrUge ?? 0;
+  const erUgeVane = maalPrUge > 0;
+  const ugeMaalNaaet = erUgeVane && gjortIUge >= maalPrUge;
+
+  // Til pillen øverst til højre bruger vi enten dags-streaken eller
+  // uge-streaken, alt efter hvilken slags vane det er.
+  const streakTal = erUgeVane ? ugeStreak : streak;
+
+  // Pillen bliver varmere, jo længere streaken er:
+  // gul under 7, orange fra 7, rød med glød fra 30.
   const pilleFarve =
-    streak >= 30
+    streakTal >= 30
       ? "bg-red-500/20 text-red-300"
-      : streak >= 7
+      : streakTal >= 7
         ? "bg-orange-500/20 text-orange-300"
         : "bg-amber-500/15 text-amber-300";
 
-  // Ekstra glød om pillen ved lange streaks (30+ dage).
+  // Ekstra glød om pillen ved lange streaks (30+).
   const pilleGlow =
-    streak >= 30 ? { boxShadow: "0 0 12px rgba(239, 68, 68, 0.45)" } : undefined;
+    streakTal >= 30
+      ? { boxShadow: "0 0 12px rgba(239, 68, 68, 0.45)" }
+      : undefined;
 
   // Styrer det lille "pop" på fluebens-cirklen. Ved hvert klik tænder vi
   // det kort og slukker det igen efter 300 ms (lige så længe animationen
@@ -73,10 +95,44 @@ export function VaneKort({ vane, gjort, streak, dageGjortIAlt, onSkift }: Props)
         <span className="min-w-0 flex-1">
           <span className="block font-medium break-words">{vane.navn}</span>
           <span className="block text-sm text-slate-400">{vane.point} point</span>
+
+          {/* Kun for uge-vaner: en lille fremskridts-linje for ugen -
+              prikker der fyldes + tekst ("3 / 4 i denne uge"). */}
+          {erUgeVane && (
+            <span className="mt-1 flex items-center gap-2">
+              {/* Én prik pr. gang, målet kræver. Fyldt = allerede gjort. */}
+              <span className="flex gap-1">
+                {Array.from({ length: maalPrUge }).map((_, i) => (
+                  <span
+                    key={i}
+                    className={
+                      "h-2 w-2 rounded-full " +
+                      (i < gjortIUge
+                        ? ugeMaalNaaet
+                          ? "bg-emerald-400"
+                          : "bg-amber-400"
+                        : "bg-slate-600")
+                    }
+                  />
+                ))}
+              </span>
+              <span
+                className={
+                  "text-xs font-medium " +
+                  (ugeMaalNaaet ? "text-emerald-300" : "text-slate-400")
+                }
+              >
+                {ugeMaalNaaet
+                  ? "✓ Klaret i denne uge"
+                  : `${gjortIUge} / ${maalPrUge} i denne uge`}
+              </span>
+            </span>
+          )}
         </span>
 
-        {/* Streak-pille: kun vist hvis vanen er holdt mindst én dag i træk. */}
-        {streak > 0 && (
+        {/* Streak-pille. For daglige vaner: dage i træk. For uge-vaner:
+            uger i træk målet er ramt. Kun vist hvis tallet er mindst 1. */}
+        {streakTal > 0 && (
           <span
             className={
               "flex flex-none items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold " +
@@ -84,7 +140,8 @@ export function VaneKort({ vane, gjort, streak, dageGjortIAlt, onSkift }: Props)
             }
             style={pilleGlow}
           >
-            🔥 {streak}
+            🔥 {streakTal}
+            {erUgeVane && (streakTal === 1 ? " uge" : " uger")}
           </span>
         )}
 

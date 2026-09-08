@@ -42,11 +42,14 @@ function afkrydsningerIAlt(afkrydsninger: Afkrydsninger): number {
   return sum;
 }
 
-// Hvor mange "perfekte" dage har der været (ALLE vaner krydset af)?
+// Hvor mange "perfekte" dage har der været (alle DAGLIGE vaner krydset af)?
+// Uge-vaner tælles ikke med her - ellers ville en perfekt dag være umulig
+// på dage, hvor man ikke skal lave sine uge-vaner.
 function perfekteDage(vaner: Vane[], afkrydsninger: Afkrydsninger): number {
-  if (vaner.length === 0) return 0;
+  const daglige = vaner.filter((v) => !v.maalPrUge);
+  if (daglige.length === 0) return 0;
   return Object.keys(afkrydsninger).filter(
-    (dato) => antalGjortPaaDato(vaner, afkrydsninger, dato) === vaner.length,
+    (dato) => antalGjortPaaDato(daglige, afkrydsninger, dato) === daglige.length,
   ).length;
 }
 

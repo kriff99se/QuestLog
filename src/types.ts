@@ -11,6 +11,11 @@ export type Vane = {
   // "Ingen snus" (60 kr/dag). Er den ikke sat (eller 0), vises der ingen
   // pengeoplysning på kortet.
   sparerPrDag?: number;
+  // Valgfrit: hvor mange gange om ugen vanen skal gøres. Er den ikke sat
+  // (eller 0), er vanen en helt almindelig DAGLIG vane. Er den fx sat til 4,
+  // bliver vanen en "uge-vane": kortet viser "3 / 4 i denne uge" i stedet for
+  // en dags-streak, og 🔥-tallet tæller uger i træk, hvor målet er ramt.
+  maalPrUge?: number;
 };
 
 // Alle afkrydsninger, opdelt efter dato.
