@@ -24,6 +24,8 @@ import { Historik } from "./Historik";
 import { Backup } from "./Backup";
 import { NulstilAlt } from "./NulstilAlt";
 import { BundMenu, type Visning } from "./BundMenu";
+import { Trofaeer } from "./Trofaeer";
+import type { TrofaeData } from "./achievements";
 
 export default function App() {
   // Vanerne. Første gang appen åbnes, bruges standardlisten med de 10 vaner.
@@ -136,6 +138,19 @@ export default function App() {
 
   // Den korte "du er tæt på"-tekst til status-stribjen.
   const maalTekst = naesteMaal(dagsStreak.dage, antalGjort, taerskel);
+
+  // Alt hvad trofæ-tjekkene skal bruge, samlet ét sted.
+  const trofaeData: TrofaeData = {
+    vaner,
+    afkrydsninger,
+    todos,
+    noter,
+    iDag: dato,
+    level: levelInfo.level,
+    samledePoint,
+    streak: dagsStreak.dage,
+    rekordStreak,
+  };
 
   // --- Animationer (Fase 6) ---
   //
@@ -302,6 +317,8 @@ export default function App() {
             iDag={dato}
           />
         )}
+
+        {visning === "trofaeer" && <Trofaeer data={trofaeData} />}
 
         {visning === "rediger" && (
           <>

@@ -2,7 +2,12 @@
 // ligesom i en rigtig iPhone-app. Ikonerne er små tegninger (SVG), så
 // menuen ser "app-agtig" ud og ikke som en række knapper på en hjemmeside.
 
-export type Visning = "i-dag" | "todo" | "historik" | "rediger";
+export type Visning =
+  | "i-dag"
+  | "todo"
+  | "historik"
+  | "trofaeer"
+  | "rediger";
 
 type Props = {
   visning: Visning;
@@ -39,6 +44,11 @@ const FANER: { id: Visning; navn: string; d: string }[] = [
     id: "historik",
     navn: "Historik",
     d: "M4 5h16v15H4zM4 10h16M9 3v4M15 3v4",
+  },
+  {
+    id: "trofaeer",
+    navn: "Trofæer",
+    d: "M8 21h8M12 17v4M6 4h12v4a6 6 0 0 1-12 0zM6 5H3v2a3 3 0 0 0 3 3M18 5h3v2a3 3 0 0 1-3 3",
   },
   { id: "rediger", navn: "Rediger", d: "m4 20 1-4L16 5l3 3L8 19l-4 1zM14 7l3 3" },
 ];
