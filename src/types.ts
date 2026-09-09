@@ -40,6 +40,10 @@ export type Todo = {
 // Appens indstillinger.
 export type Indstillinger = {
   // Hvor mange vaner der skal krydses af på en dag,
-  // før dagen tæller som en "grøn dag" i streaken.
+  // før dagen tæller som en "grøn dag" i kalenderen.
   taerskel: number;
+  // Hvor mange point man vil tjene på en uge (mandag-søndag).
+  // Bruges til uge-målet på "Denne uge"-kortet. Er den ikke sat på gamle
+  // gemte indstillinger, bruger appen STANDARD_UGEMAAL i stedet.
+  ugeMaal?: number;
 };

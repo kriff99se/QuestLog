@@ -4,7 +4,13 @@ import { STANDARD_VANER } from "./vaner";
 import type { Afkrydsninger, Indstillinger, Todo } from "./types";
 import { iDagISO, ugensDatoer, ugedagKort } from "./datoer";
 import { VaneKort } from "./VaneKort";
-import { beregnSamledePoint, beregnOpgavePoint, beregnLevel } from "./point";
+import {
+  beregnSamledePoint,
+  beregnOpgavePoint,
+  beregnLevel,
+  ugensPoint,
+  STANDARD_UGEMAAL,
+} from "./point";
 import { findTitel } from "./titler";
 import { RedigerVaner } from "./RedigerVaner";
 import {
@@ -44,10 +50,11 @@ export default function App() {
     {},
   );
 
-  // Indstillinger. Lige nu kun tærsklen for en "grøn dag" (standard 7).
+  // Indstillinger: tærsklen for en "grøn dag" i kalenderen (standard 7),
+  // og uge-målet i point (standard STANDARD_UGEMAAL).
   const [indstillinger, setIndstillinger] = useLocalStorage<Indstillinger>(
     "indstillinger",
-    { taerskel: 7 },
+    { taerskel: 7, ugeMaal: STANDARD_UGEMAAL },
   );
 
   // Alle opgaver på to-do listen. Starter som en tom liste.
@@ -70,6 +77,14 @@ export default function App() {
       );
     }
   }, [vaner, setVaner]);
+
+  // Engangs-opdatering: gamle gemte indstillinger har ikke feltet "ugeMaal".
+  // Sæt det til standardværdien, så uge-målet dukker op af sig selv.
+  useEffect(() => {
+    if (indstillinger.ugeMaal === undefined) {
+      setIndstillinger((gamle) => ({ ...gamle, ugeMaal: STANDARD_UGEMAAL }));
+    }
+  }, [indstillinger, setIndstillinger]);
 
   // Hvilken skærm vi kigger på. Gemmes IKKE - appen starter altid på "i-dag".
   const [visning, setVisning] = useState<Visning>("i-dag");
@@ -113,7 +128,7 @@ export default function App() {
   function nulstilAlt() {
     setVaner(STANDARD_VANER);
     setAfkrydsninger({});
-    setIndstillinger({ taerskel: 7 });
+    setIndstillinger({ taerskel: 7, ugeMaal: STANDARD_UGEMAAL });
     setTodos([]);
     setNoter({});
     setVisning("i-dag");
@@ -132,6 +147,18 @@ export default function App() {
     const holdtIndenfor = Math.max(1, Math.min(ny, antalDaglige));
     setIndstillinger({ ...indstillinger, taerskel: holdtIndenfor });
   }
+
+  // Uge-målet i point. Falder tilbage på standardværdien, indtil engangs-
+  // opdateringen ovenfor har gemt et rigtigt tal.
+  const ugeMaal = indstillinger.ugeMaal ?? STANDARD_UGEMAAL;
+
+  // Sæt uge-målet. Aldrig under 0 - ellers giver bjælken ikke mening.
+  function saetUgeMaal(ny: number) {
+    setIndstillinger({ ...indstillinger, ugeMaal: Math.max(0, ny) });
+  }
+
+  // Point tjent i denne uge (mandag-søndag) - vises på "Denne uge"-kortet.
+  const denneUgesPoint = ugensPoint(vaner, afkrydsninger, dato);
 
   // Hvor mange af vanerne er klaret den valgte dag? (Uge-vaner tæller med
   // her - krydser man sauna af i dag, hjælper det dagens grønne dag.)
@@ -363,6 +390,9 @@ export default function App() {
               antalVaner={antalDaglige}
               ugensDage={ugensDage}
               onTaerskel={saetTaerskel}
+              ugeMaal={ugeMaal}
+              denneUgesPoint={denneUgesPoint}
+              onUgeMaal={saetUgeMaal}
             />
           </>
         )}

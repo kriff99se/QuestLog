@@ -1,4 +1,5 @@
 import type { Vane, Afkrydsninger, Todo } from "./types";
+import { ugensDatoer } from "./datoer";
 
 // Her regner vi point og level ud. Bemærk: hverken point eller level
 // bliver gemt nogen steder. Vi regner dem altid ud fra vanerne og
@@ -53,6 +54,20 @@ export function pointForDatoer(
     }
   }
   return sum;
+}
+
+// Standard uge-mål i point, hvis brugeren ikke selv har sat et.
+// Cirka svarende til en solid, men ikke perfekt uge.
+export const STANDARD_UGEMAAL = 450;
+
+// Point tjent i den uge (mandag-søndag), som 'datoIUgen' ligger i.
+// Bruges til uge-målet på "Denne uge"-kortet.
+export function ugensPoint(
+  vaner: Vane[],
+  afkrydsninger: Afkrydsninger,
+  datoIUgen: string,
+): number {
+  return pointForDatoer(vaner, afkrydsninger, ugensDatoer(datoIUgen));
 }
 
 // Hver opgave på to-do listen, der er krydset af som færdig, giver

@@ -17,6 +17,9 @@ type Props = {
   antalVaner: number; // hvor mange DAGLIGE vaner der findes (uge-vaner tæller ikke med)
   ugensDage: UgeDag[]; // mandag..søndag i den viste uge
   onTaerskel: (ny: number) => void; // kaldes når brugeren ændrer tærsklen
+  ugeMaal: number; // mål for point tjent på en uge
+  denneUgesPoint: number; // point tjent i denne uge indtil nu
+  onUgeMaal: (ny: number) => void; // kaldes når brugeren ændrer uge-målet
 };
 
 // "Denne uge"-kortet: uge-sporet med flammer, den personlige rekord,
@@ -30,11 +33,22 @@ export function StreakBanner({
   antalVaner,
   ugensDage,
   onTaerskel,
+  ugeMaal,
+  denneUgesPoint,
+  onUgeMaal,
 }: Props) {
   // Er tærskel-indstillingen foldet ud? Starter skjult.
   const [visIndstilling, setVisIndstilling] = useState(false);
+  // Er uge-mål-indstillingen foldet ud? Starter skjult.
+  const [visUgeMaal, setVisUgeMaal] = useState(false);
 
   const harStreak = streak > 0;
+
+  // Hvor langt er vi mod uge-målet? (0-100 %, aldrig over 100 på bjælken.)
+  const ugeMaalNaaet = ugeMaal > 0 && denneUgesPoint >= ugeMaal;
+  const ugeProcent =
+    ugeMaal > 0 ? Math.min(100, (denneUgesPoint / ugeMaal) * 100) : 0;
+  const ugeMangler = Math.max(0, ugeMaal - denneUgesPoint);
 
   return (
     <div
@@ -101,6 +115,65 @@ export function StreakBanner({
           🛡️ Streaken overlevede én misset dag. Misser du én til, nulstilles den.
         </p>
       )}
+
+      {/* Uge-mål i point: hvor mange point man vil tjene på ugen.
+          En produktiv dag fylder en stor bid, så en stille dag bagefter
+          ikke koster noget. */}
+      <div className="flex flex-col gap-1.5 border-t border-slate-700 pt-3">
+        <div className="flex items-center justify-between text-xs">
+          <span className="text-slate-400">
+            <span className="font-semibold text-slate-200">
+              {denneUgesPoint}
+            </span>{" "}
+            / {ugeMaal} point denne uge
+          </span>
+          <button
+            type="button"
+            onClick={() => setVisUgeMaal((v) => !v)}
+            aria-label="Indstil uge-målet"
+            className="rounded-md px-2 py-1 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+          >
+            ⚙
+          </button>
+        </div>
+
+        {/* Selve bjælken mod uge-målet. */}
+        <div className="h-2 w-full overflow-hidden rounded-full bg-slate-700">
+          <div
+            className={
+              "h-full rounded-full transition-all " +
+              (ugeMaalNaaet ? "bg-emerald-500" : "bg-amber-400")
+            }
+            style={{ width: `${ugeProcent}%` }}
+          />
+        </div>
+
+        {ugeMaalNaaet ? (
+          <p className="text-xs font-medium text-emerald-300">
+            ✓ Uge-målet er nået
+          </p>
+        ) : (
+          <p className="text-xs text-slate-500">
+            {ugeMangler} point tilbage
+          </p>
+        )}
+
+        {/* Selve indstillingen - kun synlig når tandhjulet er klikket. */}
+        {visUgeMaal && (
+          <label className="mt-1 flex items-center gap-2 border-t border-slate-700 pt-3 text-sm text-slate-400">
+            Uge-mål
+            <input
+              type="number"
+              min={0}
+              step={25}
+              value={ugeMaal}
+              onChange={(e) => onUgeMaal(Number(e.target.value) || 0)}
+              className="w-20 rounded-lg border border-slate-600 bg-slate-900 px-2 py-1 text-slate-100"
+            />
+            point
+          </label>
+        )}
+      </div>
 
       {/* Tandhjul til tærskel-indstillingen. */}
       <div className="flex items-center justify-between text-xs text-slate-500">
