@@ -5,7 +5,7 @@ import {
   ugensDatoer,
   forrigeUgesMandag,
 } from "./datoer";
-import { ugensPoint } from "./point";
+import { ugensPoint, pointForDatoer } from "./point";
 
 // Her regner vi streaks ud. Ligesom point og level bliver de aldrig gemt -
 // de beregnes altid ud fra afkrydsningerne, så de ikke kan komme i utakt.
@@ -30,14 +30,17 @@ export function antalDageVaneGjort(
   return Object.values(afkrydsninger).filter((dag) => dag[vaneId]).length;
 }
 
-// En "grøn dag" = mindst 'taerskel' vaner krydset af den dag.
+// En "grøn dag" = du tjente mindst 'dagsMaal' point den dag (dagsMaal er
+// en syvendedel af uge-målet, se dagligtMaal i point.ts). Bruges kun til
+// flammerne i uge-sporet og farverne i historik-kalenderen - ikke til
+// streaken, som kører på hele ugens point.
 export function erGroenDag(
   vaner: Vane[],
   afkrydsninger: Afkrydsninger,
   dato: string,
-  taerskel: number,
+  dagsMaal: number,
 ): boolean {
-  return antalGjortPaaDato(vaner, afkrydsninger, dato) >= taerskel;
+  return pointForDatoer(vaner, afkrydsninger, [dato]) >= dagsMaal;
 }
 
 // --- Streaks med ét "skjold" ---

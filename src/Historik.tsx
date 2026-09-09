@@ -23,7 +23,7 @@ type Props = {
   vaner: Vane[];
   afkrydsninger: Afkrydsninger;
   noter: Record<string, string>; // dagbogs-noter pr. dato
-  taerskel: number;
+  dagsMaal: number; // point på en dag for at den vises som grøn
   ugeMaal: number; // point-målet for en uge (til "uge for uge"-markeringen)
   iDag: string; // dagens dato
 };
@@ -32,13 +32,13 @@ type Props = {
 const UGEDAGE = ["ma", "ti", "on", "to", "fr", "lø", "sø"];
 
 // En kalender-visning: én måned ad gangen, hvor hver dag er farvet efter,
-// hvor godt den gik. Grøn = du nåede tærsklen, gul = du gjorde noget men
-// ikke nok, grå = ingenting.
+// hvor godt den gik. Grøn = du tjente mindst dagsMaal point, gul = du gjorde
+// noget men ikke nok, grå = ingenting.
 export function Historik({
   vaner,
   afkrydsninger,
   noter,
-  taerskel,
+  dagsMaal,
   ugeMaal,
   iDag,
 }: Props) {
@@ -60,7 +60,7 @@ export function Historik({
   // Var en bestemt dag "god"? For "alle" = en grøn dag. For én vane =
   // blev lige den vane krydset af.
   function erGodDag(dato: string): boolean {
-    if (erAlle) return erGroenDag(vaner, afkrydsninger, dato, taerskel);
+    if (erAlle) return erGroenDag(vaner, afkrydsninger, dato, dagsMaal);
     return Boolean((afkrydsninger[dato] ?? {})[valgtVane]);
   }
 

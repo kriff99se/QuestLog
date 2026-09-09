@@ -60,6 +60,13 @@ export function pointForDatoer(
 // Cirka svarende til en solid, men ikke perfekt uge.
 export const STANDARD_UGEMAAL = 450;
 
+// Det daglige mål: en syvendedel af uge-målet, rundet til nærmeste 5
+// (så tallet er pænt). En dag tæller som "grøn" i uge-sporet og
+// historik-kalenderen, hvis man tjener mindst så mange point den dag.
+export function dagligtMaal(ugeMaal: number): number {
+  return Math.round(ugeMaal / 35) * 5;
+}
+
 // Point tjent i den uge (mandag-søndag), som 'datoIUgen' ligger i.
 // Bruges til uge-målet på "Denne uge"-kortet.
 export function ugensPoint(

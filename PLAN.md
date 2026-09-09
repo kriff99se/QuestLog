@@ -460,6 +460,21 @@ Bygges i faser (hver fase kan køres og committes for sig):
   `indstillinger`-objektet. Gamle backup-filer uden feltet får det sat af
   engangs-opdateringen ved indlæsning. "Nulstil alt" nulstiller det også.
 
+**Fase 4 (færdig):** fjern den efterladte "grøn dag"-tærskel-indstilling.
+Efter Fase 2+3 styrede `taerskel` kun flammerne i uge-sporet og farverne i
+historik-kalenderen - ikke streaken - så knappen var forvirrende.
+- `taerskel` fjernet fra `Indstillinger` (gamle gemte data må gerne stadig
+  have feltet - det ignoreres). `saetTaerskel`, `antalDaglige` og hele
+  tandhjuls-blokken i `StreakBanner` er væk.
+- Ny `dagligtMaal(ugeMaal)` i `point.ts` = `round(ugeMaal / 35) * 5`
+  (en syvendedel af uge-målet, rundet til nærmeste 5).
+- `erGroenDag(vaner, afk, dato, dagsMaal)` er nu **point-baseret**: en grøn
+  dag = mindst `dagsMaal` point tjent den dag (før: mindst N vaner). Bruger
+  `pointForDatoer`. `App` og `Historik` sender `dagsMaal` i stedet for
+  `taerskel`.
+- "Denne uge"-kortet har en lille linje: "🔥 = dag hvor du tjente mindst
+  N point". Historik-kalenderens forklaring uændret (grøn/gul/grå).
+
 ### Ekstra: penge sparet pr. vane (efter Fase 7)
 
 Valgfrit felt `sparerPrDag` på en `Vane` (kroner sparet for hver dag vanen

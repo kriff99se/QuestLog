@@ -9,6 +9,7 @@ import {
   beregnOpgavePoint,
   beregnLevel,
   ugensPoint,
+  dagligtMaal,
   STANDARD_UGEMAAL,
 } from "./point";
 import { findTitel } from "./titler";
@@ -49,11 +50,10 @@ export default function App() {
     {},
   );
 
-  // Indstillinger: tærsklen for en "grøn dag" i kalenderen (standard 7),
-  // og uge-målet i point (standard STANDARD_UGEMAAL).
+  // Indstillinger: kun uge-målet i point (standard STANDARD_UGEMAAL).
   const [indstillinger, setIndstillinger] = useLocalStorage<Indstillinger>(
     "indstillinger",
-    { taerskel: 7, ugeMaal: STANDARD_UGEMAAL },
+    { ugeMaal: STANDARD_UGEMAAL },
   );
 
   // Alle opgaver på to-do listen. Starter som en tom liste.
@@ -127,24 +127,10 @@ export default function App() {
   function nulstilAlt() {
     setVaner(STANDARD_VANER);
     setAfkrydsninger({});
-    setIndstillinger({ taerskel: 7, ugeMaal: STANDARD_UGEMAAL });
+    setIndstillinger({ ugeMaal: STANDARD_UGEMAAL });
     setTodos([]);
     setNoter({});
     setVisning("i-dag");
-  }
-
-  // De daglige vaner (dem UDEN et uge-mål). Kun de tæller, når vi afgør,
-  // hvor høj "grøn dag"-tærsklen må være - ellers ville tærsklen blive
-  // uopnåelig på dage, hvor man ikke laver sine uge-vaner.
-  const antalDaglige = Math.max(
-    1,
-    vaner.filter((v) => !v.maalPrUge).length,
-  );
-
-  // Sæt tærsklen, men hold den mellem 1 og antallet af daglige vaner.
-  function saetTaerskel(ny: number) {
-    const holdtIndenfor = Math.max(1, Math.min(ny, antalDaglige));
-    setIndstillinger({ ...indstillinger, taerskel: holdtIndenfor });
   }
 
   // Uge-målet i point. Falder tilbage på standardværdien, indtil engangs-
@@ -159,10 +145,10 @@ export default function App() {
   // Point tjent i denne uge (mandag-søndag) - vises på "Denne uge"-kortet.
   const denneUgesPoint = ugensPoint(vaner, afkrydsninger, dato);
 
-  // Tærsklen vi regner med. Hvis den gemte værdi er blevet for høj (fx fordi
-  // vaner er slettet eller lavet om til uge-vaner), klemmer vi den ned, så
-  // en grøn dag stadig er mulig.
-  const taerskel = Math.max(1, Math.min(indstillinger.taerskel, antalDaglige));
+  // Det daglige mål: en syvendedel af uge-målet. En dag vises som "grøn"
+  // i uge-sporet og historik-kalenderen, hvis man tjener mindst så mange
+  // point den dag. Der er ikke længere en separat indstilling for det.
+  const dagsMaal = dagligtMaal(ugeMaal);
 
   // Samlede point og level. Point kommer fra to steder:
   // alle vane-afkrydsninger nogensinde + alle færdige to-do opgaver.
@@ -291,7 +277,7 @@ export default function App() {
   const ugensDage = ugensDatoer(dato).map((d) => ({
     dato: d,
     label: ugedagKort(d),
-    groen: erGroenDag(vaner, afkrydsninger, d, taerskel),
+    groen: erGroenDag(vaner, afkrydsninger, d, dagsMaal),
     erIDag: d === dato,
     erFremtid: d > dato,
   }));
@@ -382,10 +368,8 @@ export default function App() {
             <StreakBanner
               streak={ugeStreakTal}
               rekord={rekordUgeStreak}
-              taerskel={taerskel}
-              antalVaner={antalDaglige}
+              dagsMaal={dagsMaal}
               ugensDage={ugensDage}
-              onTaerskel={saetTaerskel}
               ugeMaal={ugeMaal}
               denneUgesPoint={denneUgesPoint}
               onUgeMaal={saetUgeMaal}
@@ -402,7 +386,7 @@ export default function App() {
             vaner={vaner}
             afkrydsninger={afkrydsninger}
             noter={noter}
-            taerskel={taerskel}
+            dagsMaal={dagsMaal}
             ugeMaal={ugeMaal}
             iDag={dato}
           />

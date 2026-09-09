@@ -4,7 +4,7 @@ import { useState } from "react";
 export type UgeDag = {
   dato: string; // "2026-09-05"
   label: string; // "ma", "ti" ...
-  groen: boolean; // var dagen grøn (nåede tærsklen)?
+  groen: boolean; // tjente man mindst dagsMaal point den dag?
   erIDag: boolean; // er det den dag appen viser lige nu?
   erFremtid: boolean; // ligger dagen senere end i dag?
 };
@@ -12,31 +12,24 @@ export type UgeDag = {
 type Props = {
   streak: number; // uge-mål-streak (uger i træk) - kun brugt til den varme glød
   rekord: number; // den længste uge-mål-streak nogensinde
-  taerskel: number; // hvor mange vaner der skal til for en grøn dag i uge-sporet
-  antalVaner: number; // hvor mange DAGLIGE vaner der findes (uge-vaner tæller ikke med)
+  dagsMaal: number; // point på en dag for at den vises grøn i uge-sporet
   ugensDage: UgeDag[]; // mandag..søndag i den viste uge
-  onTaerskel: (ny: number) => void; // kaldes når brugeren ændrer tærsklen
   ugeMaal: number; // mål for point tjent på en uge
   denneUgesPoint: number; // point tjent i denne uge indtil nu
   onUgeMaal: (ny: number) => void; // kaldes når brugeren ændrer uge-målet
 };
 
 // "Denne uge"-kortet: uge-målet i point (streaken), uge-sporet med flammer
-// (hvilke dage nåede de daglige vaner), rekorden, og de to indstillinger
-// gemt bag tandhjul.
+// (hvilke dage man tjente mindst dagsMaal point), og rekorden.
 export function StreakBanner({
   streak,
   rekord,
-  taerskel,
-  antalVaner,
+  dagsMaal,
   ugensDage,
-  onTaerskel,
   ugeMaal,
   denneUgesPoint,
   onUgeMaal,
 }: Props) {
-  // Er tærskel-indstillingen foldet ud? Starter skjult.
-  const [visIndstilling, setVisIndstilling] = useState(false);
   // Er uge-mål-indstillingen foldet ud? Starter skjult.
   const [visUgeMaal, setVisUgeMaal] = useState(false);
 
@@ -107,6 +100,11 @@ export function StreakBanner({
         ))}
       </div>
 
+      {/* Lille forklaring på flammerne - de påvirker ikke streaken. */}
+      <p className="text-xs text-slate-500">
+        🔥 = dag hvor du tjente mindst {dagsMaal} point
+      </p>
+
       {/* Uge-mål i point: hvor mange point man vil tjene på ugen.
           En produktiv dag fylder en stor bid, så en stille dag bagefter
           ikke koster noget. */}
@@ -165,35 +163,6 @@ export function StreakBanner({
           </label>
         )}
       </div>
-
-      {/* Tandhjul til tærskel-indstillingen. */}
-      <div className="flex items-center justify-between text-xs text-slate-500">
-        <span>Grøn dag = mindst {taerskel} daglige vaner</span>
-        <button
-          type="button"
-          onClick={() => setVisIndstilling((v) => !v)}
-          aria-label="Indstil hvornår en dag er grøn"
-          className="rounded-md px-2 py-1 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
-        >
-          ⚙
-        </button>
-      </div>
-
-      {/* Selve indstillingen - kun synlig når tandhjulet er klikket. */}
-      {visIndstilling && (
-        <label className="flex items-center gap-2 border-t border-slate-700 pt-3 text-sm text-slate-400">
-          Grøn dag = mindst
-          <input
-            type="number"
-            min={1}
-            max={antalVaner}
-            value={taerskel}
-            onChange={(e) => onTaerskel(Number(e.target.value) || 1)}
-            className="w-16 rounded-lg border border-slate-600 bg-slate-900 px-2 py-1 text-slate-100"
-          />
-          af {antalVaner} daglige vaner
-        </label>
-      )}
     </div>
   );
 }
