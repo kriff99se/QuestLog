@@ -444,12 +444,21 @@ Bygges i faser (hver fase kan køres og committes for sig):
   **kun** til trofæ-tjekkene indtil videre. Uge-sporet (ma-sø flammer) og
   historik-kalenderen viser stadig grønne *dage* via `taerskel`.
 
-**Fase 3 (mangler):** trofæer + finpudsning.
-- Streak-trofæerne ("100 grønne dage i træk") → grønne **uger** med nye
-  milepæle (1, 2, 4, 8, 13, 26, 52 uger). `comeback`-trofæet med.
-- "Uge for uge" i historikken markerer uger, hvor uge-målet blev ramt.
-- Backup + "Nulstil alt": `ugeMaal` med (Nulstil har det allerede).
-- Evt. rydde `naesteMaal` (dags-versionen) væk, hvis den ikke bruges mere.
+**Fase 3 (færdig):** trofæer + finpudsning.
+- Streak-trofæerne er nu grønne **uger** i træk (`uge-streak-1/2/4/8/13/26/52/104`
+  i `achievements.ts`, milepæle = måned/kvartal/halvår/år). `comeback` kræver
+  nu 3+ grønne uger. Trofæer gemmes ikke, så id-skiftet kræver ingen migrering.
+- `TrofaeData.streak` / `.rekordStreak` fyldes nu fra uge-mål-streaken.
+  Den gamle dags-streak (`samletStreak`, `laengsteStreak`) er **fjernet** helt
+  fra `streaks.ts` sammen med `naesteMaal` (dags-versionen) og `MILEPAELE` -
+  intet brugte dem længere. `taelBaglaens` / `laengsteRun` bliver (de driver
+  stadig `vaneStreak` / `laengsteVaneStreak` pr. vane).
+- Historik "uge for uge": uger der nåede uge-målet får 🎯 + svag grøn bund,
+  og der står "N uger har nået uge-målet 🎯". `ugeMaal` sendes nu til
+  `Historik`.
+- Backup: `ugeMaal` er allerede med - `Backup.tsx` gemmer hele
+  `indstillinger`-objektet. Gamle backup-filer uden feltet får det sat af
+  engangs-opdateringen ved indlæsning. "Nulstil alt" nulstiller det også.
 
 ### Ekstra: penge sparet pr. vane (efter Fase 7)
 

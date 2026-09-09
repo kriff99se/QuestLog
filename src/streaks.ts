@@ -95,18 +95,6 @@ function taelBaglaens(
   return { dage, skjoldBrugt: skjoldReddede };
 }
 
-// Den samlede dags-streak (grønne dage i træk, med ét skjold).
-export function samletStreak(
-  vaner: Vane[],
-  afkrydsninger: Afkrydsninger,
-  iDag: string,
-  taerskel: number,
-): StreakInfo {
-  return taelBaglaens(iDag, (dato) =>
-    erGroenDag(vaner, afkrydsninger, dato, taerskel),
-  );
-}
-
 // Streak for én enkelt vane: dage i træk vanen er holdt (med ét skjold).
 export function vaneStreak(
   afkrydsninger: Afkrydsninger,
@@ -279,28 +267,6 @@ export function naesteUgeMaal(
   return `${til} ${til === 1 ? "uge" : "uger"} til en ${naeste}-ugers stime`;
 }
 
-// Runde streak-tal, det er sjovt at ramme.
-const MILEPAELE = [3, 7, 14, 30, 60, 100, 200, 365];
-
-// Én kort "du er tæt på"-tekst: enten hvor lidt der mangler til en grøn dag,
-// eller hvor få dage der er til den næste streak-milepæl. Udnytter at
-// motivationen stiger, jo tættere man er på et mål.
-export function naesteMaal(
-  streak: number,
-  gjortIDag: number,
-  taerskel: number,
-): string {
-  if (gjortIDag < taerskel) {
-    const mangler = taerskel - gjortIDag;
-    return `Kun ${mangler} ${mangler === 1 ? "vane" : "vaner"} til en grøn dag i dag`;
-  }
-  // Næste runde tal over den nuværende streak (eller næste hundrede).
-  const naeste =
-    MILEPAELE.find((m) => m > streak) ?? Math.ceil((streak + 1) / 100) * 100;
-  const til = naeste - streak;
-  return `${til} ${til === 1 ? "dag" : "dage"} til en ${naeste}-dages streak`;
-}
-
 // Går hele historikken igennem (fra første registrerede dag til i dag) og
 // finder den længste stime af "gode" dage, med samme skjold-regel som de
 // andre streaks. "erGod" fortæller, om en bestemt dato var god.
@@ -330,19 +296,6 @@ function laengsteRun(
     }
   }
   return Math.max(bedste, dage);
-}
-
-// Den længste samlede dags-streak nogensinde - et "personligt rekord",
-// der aldrig kan mistes.
-export function laengsteStreak(
-  vaner: Vane[],
-  afkrydsninger: Afkrydsninger,
-  iDag: string,
-  taerskel: number,
-): number {
-  return laengsteRun(afkrydsninger, iDag, (dato) =>
-    erGroenDag(vaner, afkrydsninger, dato, taerskel),
-  );
 }
 
 // Den længste stime for én enkelt vane nogensinde.

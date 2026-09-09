@@ -24,6 +24,7 @@ type Props = {
   afkrydsninger: Afkrydsninger;
   noter: Record<string, string>; // dagbogs-noter pr. dato
   taerskel: number;
+  ugeMaal: number; // point-målet for en uge (til "uge for uge"-markeringen)
   iDag: string; // dagens dato
 };
 
@@ -38,6 +39,7 @@ export function Historik({
   afkrydsninger,
   noter,
   taerskel,
+  ugeMaal,
   iDag,
 }: Props) {
   // Hvilken måned vi kigger på. Starter på den måned, "i dag" ligger i.
@@ -95,6 +97,7 @@ export function Historik({
     dage: { dato: string; groen: boolean; fremtid: boolean }[];
     groenne: number;
     point: number;
+    maalNaaet: boolean; // nåede ugen uge-målet i point?
     erDenneUge: boolean;
   }[] = [];
 
@@ -108,16 +111,21 @@ export function Historik({
       fremtid: d > iDag,
     }));
     const synlige = ugeDatoer.filter((d) => d <= iDag);
+    const ugePoint = pointForDatoer(vaner, afkrydsninger, synlige);
     uger.push({
       mandag,
       dage,
       groenne: dage.filter((d) => d.groen).length,
-      point: pointForDatoer(vaner, afkrydsninger, synlige),
+      point: ugePoint,
+      maalNaaet: ugeMaal > 0 && ugePoint >= ugeMaal,
       erDenneUge: mandag === denneUgeMandag,
     });
     // Gå til mandagen i ugen før.
     mandag = ugensDatoer(dagenFoer(mandag))[0];
   }
+
+  // Hvor mange uger har nået uge-målet (til den lille opsummering).
+  const antalMaalNaaet = uger.filter((u) => u.maalNaaet).length;
 
   // Den bedste uge = flest grønne dage (point som tie-breaker).
   const bedste = uger.reduce(
@@ -298,6 +306,12 @@ export function Historik({
             {bedste.groenne === 1 ? "dag" : "dage"} 🏆
           </p>
         )}
+        {erAlle && ugeMaal > 0 && antalMaalNaaet > 0 && (
+          <p className="text-sm text-slate-400">
+            {antalMaalNaaet} {antalMaalNaaet === 1 ? "uge har" : "uger har"}{" "}
+            nået uge-målet 🎯
+          </p>
+        )}
         <div className="flex flex-col gap-1">
           {uger.map((uge) => (
             <UgeRaekke
@@ -329,6 +343,7 @@ function UgeRaekke({
     dage: { dato: string; groen: boolean; fremtid: boolean }[];
     groenne: number;
     point: number;
+    maalNaaet: boolean;
     erDenneUge: boolean;
   };
   erBedste: boolean;
@@ -341,7 +356,11 @@ function UgeRaekke({
       title={`${uge.point} point`}
       className={
         "flex items-center gap-3 rounded-lg px-2 py-1.5 " +
-        (erBedste ? "bg-emerald-500/10" : "")
+        (erBedste
+          ? "bg-emerald-500/10"
+          : uge.maalNaaet
+            ? "bg-emerald-500/5"
+            : "")
       }
     >
       <span className="w-28 flex-none text-xs text-slate-400">
@@ -371,7 +390,9 @@ function UgeRaekke({
       <span className="w-10 flex-none text-right text-sm font-semibold text-slate-200">
         {uge.groenne}/7
       </span>
-      <span className="w-4 flex-none">{erBedste ? "🏆" : ""}</span>
+      <span className="w-4 flex-none" title={uge.maalNaaet ? "Uge-målet nået" : ""}>
+        {erBedste ? "🏆" : uge.maalNaaet ? "🎯" : ""}
+      </span>
     </div>
   );
 }

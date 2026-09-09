@@ -17,8 +17,8 @@ export type TrofaeData = {
   iDag: string;
   level: number; // nuværende level (fra vane- + opgave-point)
   samledePoint: number; // vane- + opgave-point i alt
-  streak: number; // nuværende samlede dags-streak
-  rekordStreak: number; // længste dags-streak nogensinde
+  streak: number; // nuværende uge-mål-streak (uger i træk uge-målet er nået)
+  rekordStreak: number; // længste uge-mål-streak nogensinde
 };
 
 export type Trofae = {
@@ -88,16 +88,15 @@ function maal(
 // --- Selve listen ---
 // Cirka i rækkefølge fra let til svær, så man kan se "hvad er det næste".
 export const TROFAEER: Trofae[] = [
-  // Streaks
-  maal("streak-1", "🌱", "Første grønne dag", "Nå tærsklen én dag", "bronze", (d) => d.rekordStreak >= 1),
-  maal("streak-3", "🔥", "Godt i gang", "3 grønne dage i træk", "bronze", (d) => d.rekordStreak >= 3),
-  maal("streak-7", "📅", "En hel uge", "7 grønne dage i træk", "sølv", (d) => d.rekordStreak >= 7),
-  maal("streak-14", "💪", "To uger i træk", "14 grønne dage i træk", "sølv", (d) => d.rekordStreak >= 14),
-  maal("streak-30", "🗓️", "En hel måned", "30 grønne dage i træk", "guld", (d) => d.rekordStreak >= 30),
-  maal("streak-60", "⛰️", "To måneder", "60 grønne dage i træk", "guld", (d) => d.rekordStreak >= 60),
-  maal("streak-100", "💯", "Trecifret", "100 grønne dage i træk", "platin", (d) => d.rekordStreak >= 100),
-  maal("streak-200", "🚀", "200 dage", "200 grønne dage i træk", "platin", (d) => d.rekordStreak >= 200),
-  maal("streak-365", "👑", "Et helt år", "365 grønne dage i træk", "legendarisk", (d) => d.rekordStreak >= 365),
+  // Uge-mål-streaks (uger i træk hvor uge-målet i point er nået)
+  maal("uge-streak-1", "🌱", "Første grønne uge", "Nå uge-målet én uge", "bronze", (d) => d.rekordStreak >= 1),
+  maal("uge-streak-2", "🔥", "Godt i gang", "2 grønne uger i træk", "bronze", (d) => d.rekordStreak >= 2),
+  maal("uge-streak-4", "📅", "En måned", "4 grønne uger i træk", "sølv", (d) => d.rekordStreak >= 4),
+  maal("uge-streak-8", "💪", "To måneder", "8 grønne uger i træk", "sølv", (d) => d.rekordStreak >= 8),
+  maal("uge-streak-13", "🗓️", "Et kvartal", "13 grønne uger i træk", "guld", (d) => d.rekordStreak >= 13),
+  maal("uge-streak-26", "⛰️", "Et halvt år", "26 grønne uger i træk", "guld", (d) => d.rekordStreak >= 26),
+  maal("uge-streak-52", "👑", "Et helt år", "52 grønne uger i træk", "platin", (d) => d.rekordStreak >= 52),
+  maal("uge-streak-104", "🏆", "To år i træk", "104 grønne uger i træk", "legendarisk", (d) => d.rekordStreak >= 104),
 
   // Levels
   maal("level-2", "🐣", "Level 2", "Nå level 2", "bronze", (d) => d.level >= 2),
@@ -148,7 +147,7 @@ export const TROFAEER: Trofae[] = [
     d.vaner.length > 0 &&
     d.vaner.every((v) => antalDageVaneGjort(d.afkrydsninger, v.id) > 0),
   ),
-  maal("comeback", "🔄", "Comeback", "Vær tilbage på 7+ dage efter en længere streak", "guld", (d) => d.streak >= 7 && d.rekordStreak > d.streak),
+  maal("comeback", "🔄", "Comeback", "Tilbage på 3+ grønne uger efter en længere stime", "guld", (d) => d.streak >= 3 && d.rekordStreak > d.streak),
 ];
 
 // Alle trofæer man har låst op lige nu.

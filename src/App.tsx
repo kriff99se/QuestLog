@@ -14,11 +14,9 @@ import {
 import { findTitel } from "./titler";
 import { RedigerVaner } from "./RedigerVaner";
 import {
-  samletStreak,
   vaneStreak,
   erGroenDag,
   antalDageVaneGjort,
-  laengsteStreak,
   gjortIUge,
   ugeStreak,
   ugeMaalStreak,
@@ -173,14 +171,8 @@ export default function App() {
   const levelInfo = beregnLevel(samledePoint);
   const titel = findTitel(levelInfo.level);
 
-  // Den samlede dags-streak (grønne dage i træk) + den længste nogensinde.
-  // Bruges nu kun af trofæ-tjekkene - selve streaken, brugeren ser, er
-  // uge-mål-streaken nedenfor.
-  const dagsStreak = samletStreak(vaner, afkrydsninger, dato, taerskel);
-  const rekordStreak = laengsteStreak(vaner, afkrydsninger, dato, taerskel);
-
   // Uge-mål-streaken: uger i træk hvor uge-målet i point er nået.
-  // Det er den, der vises øverst og på "Denne uge"-kortet.
+  // Det er den, der vises øverst, på "Denne uge"-kortet og i trofæerne.
   const ugeStreakTal = ugeMaalStreak(vaner, afkrydsninger, ugeMaal, dato);
   const rekordUgeStreak = laengsteUgeMaalStreak(
     vaner,
@@ -198,8 +190,8 @@ export default function App() {
     iDag: dato,
     level: levelInfo.level,
     samledePoint,
-    streak: dagsStreak.dage,
-    rekordStreak,
+    streak: ugeStreakTal,
+    rekordStreak: rekordUgeStreak,
   };
 
   // --- Animationer (Fase 6) ---
@@ -411,6 +403,7 @@ export default function App() {
             afkrydsninger={afkrydsninger}
             noter={noter}
             taerskel={taerskel}
+            ugeMaal={ugeMaal}
             iDag={dato}
           />
         )}
