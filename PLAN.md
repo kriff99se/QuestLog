@@ -410,6 +410,47 @@ Bemærk: eksisterende brugere har fjernet standard-vanen "Sauna" fra deres
 liste; "Fitness" er sat til `maalPrUge: 5` i appen. `STANDARD_VANER` er ikke
 ændret (ingen migrering nødvendig - feltet er bare fraværende = daglig).
 
+### Ekstra: uge-mål i point (streaken bliver ugebaseret)
+
+**Problemet:** med en dags-streak bliver man "straffet" for at have været
+produktiv i går - lavede man sauna + træning + meal prep i går, gør man dem
+sandsynligvis ikke i dag, og så er en grøn dag svær at nå. Indsatsen burde
+kunne "bæres videre". Løsningen er at måle en **uge** i stedet for en dag.
+
+Bygges i faser (hver fase kan køres og committes for sig):
+
+**Fase 1 (færdig):** vis uge-målet, uden at røre streaken.
+- Nyt valgfrit felt `ugeMaal` på `Indstillinger` (standard `STANDARD_UGEMAAL`
+  = 450 point), med engangs-opdatering i `App.tsx` for gamle gemte
+  indstillinger.
+- `ugensPoint(vaner, afkrydsninger, datoIUgen)` i `point.ts`: point tjent
+  mandag-søndag.
+- "Denne uge"-kortet (`StreakBanner.tsx`): linjen *"X / 450 point denne uge"*
+  + bjælke + et tandhjul til at ændre målet. Dags-streaken uændret.
+
+**Fase 2 (færdig):** streaken bliver uge-mål-streaken.
+- `ugeMaalStreak(...)` + `laengsteUgeMaalStreak(...)` + `naesteUgeMaal(...)`
+  i `streaks.ts`. Uge = mandag-søndag, samme "denne uge er i gang"-regel som
+  dags-streaken, men **intet skjold** (en uge er allerede rummelig).
+  `streaks.ts` importerer nu `ugensPoint` fra `point.ts` (ingen cirkel).
+- Status-stribjen (`StatusStribe.tsx`): 🔥-tallet er nu **uger i træk**,
+  bjælken + teksten viser vejen mod uge-målet (*"160 point til uge-målet"* /
+  *"✓ Uge-målet er nået · 1 uge til en 4-ugers stime"*). Props ændret:
+  `ugeStreak` / `denneUgesPoint` / `ugeMaal` i stedet for `streak` /
+  `gjortIDag` / `taerskel` / `naesteMaal`.
+- "Denne uge"-kortet: "Rekord: N uger", glød styret af uge-streaken.
+  Skjold-beskeden fjernet (hørte til dags-streaken, som ikke længere vises).
+- Dags-streaken (`samletStreak`, `laengsteStreak`) beregnes stadig - men
+  **kun** til trofæ-tjekkene indtil videre. Uge-sporet (ma-sø flammer) og
+  historik-kalenderen viser stadig grønne *dage* via `taerskel`.
+
+**Fase 3 (mangler):** trofæer + finpudsning.
+- Streak-trofæerne ("100 grønne dage i træk") → grønne **uger** med nye
+  milepæle (1, 2, 4, 8, 13, 26, 52 uger). `comeback`-trofæet med.
+- "Uge for uge" i historikken markerer uger, hvor uge-målet blev ramt.
+- Backup + "Nulstil alt": `ugeMaal` med (Nulstil har det allerede).
+- Evt. rydde `naesteMaal` (dags-versionen) væk, hvis den ikke bruges mere.
+
 ### Ekstra: penge sparet pr. vane (efter Fase 7)
 
 Valgfrit felt `sparerPrDag` på en `Vane` (kroner sparet for hver dag vanen

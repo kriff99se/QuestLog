@@ -10,10 +10,9 @@ export type UgeDag = {
 };
 
 type Props = {
-  streak: number; // samlet dags-streak (kun brugt til den varme glød)
-  skjoldBrugt: boolean; // reddede streaken en misset dag?
-  rekord: number; // den længste streak nogensinde
-  taerskel: number; // hvor mange vaner der skal til for en grøn dag
+  streak: number; // uge-mål-streak (uger i træk) - kun brugt til den varme glød
+  rekord: number; // den længste uge-mål-streak nogensinde
+  taerskel: number; // hvor mange vaner der skal til for en grøn dag i uge-sporet
   antalVaner: number; // hvor mange DAGLIGE vaner der findes (uge-vaner tæller ikke med)
   ugensDage: UgeDag[]; // mandag..søndag i den viste uge
   onTaerskel: (ny: number) => void; // kaldes når brugeren ændrer tærsklen
@@ -22,12 +21,11 @@ type Props = {
   onUgeMaal: (ny: number) => void; // kaldes når brugeren ændrer uge-målet
 };
 
-// "Denne uge"-kortet: uge-sporet med flammer, den personlige rekord,
-// og tærskel-indstillingen gemt bag et lille tandhjul. Selve streak-tallet
-// og dagens fremskridt står i status-stribjen øverst på skærmen.
+// "Denne uge"-kortet: uge-målet i point (streaken), uge-sporet med flammer
+// (hvilke dage nåede de daglige vaner), rekorden, og de to indstillinger
+// gemt bag tandhjul.
 export function StreakBanner({
   streak,
-  skjoldBrugt,
   rekord,
   taerskel,
   antalVaner,
@@ -70,7 +68,7 @@ export function StreakBanner({
           <span className="text-xs text-slate-500">
             Rekord:{" "}
             <span className="font-semibold text-slate-300">
-              {rekord} {rekord === 1 ? "dag" : "dage"}
+              {rekord} {rekord === 1 ? "uge" : "uger"}
             </span>
           </span>
         )}
@@ -108,13 +106,6 @@ export function StreakBanner({
           </div>
         ))}
       </div>
-
-      {/* Besked når skjoldet har reddet en misset dag. */}
-      {skjoldBrugt && (
-        <p className="rounded-lg bg-slate-900/60 px-3 py-1.5 text-xs text-slate-400">
-          🛡️ Streaken overlevede én misset dag. Misser du én til, nulstilles den.
-        </p>
-      )}
 
       {/* Uge-mål i point: hvor mange point man vil tjene på ugen.
           En produktiv dag fylder en stor bid, så en stille dag bagefter

@@ -1,35 +1,37 @@
 import type { Titel } from "./titler";
+import { naesteUgeMaal } from "./streaks";
 
 type Props = {
   titel: Titel; // nuværende level-titel (navn + emoji/billede)
   level: number;
   samledePoint: number; // point i alt
   pointTilNaeste: number; // point der mangler til næste level
-  streak: number; // samlet dags-streak
-  gjortIDag: number; // hvor mange vaner er klaret i dag
-  taerskel: number; // hvor mange der skal til for en grøn dag
-  naesteMaal: string; // "Kun 2 vaner til en grøn dag" / "3 dage til ..."
+  ugeStreak: number; // uger i træk uge-målet er nået
+  denneUgesPoint: number; // point tjent i denne uge indtil nu
+  ugeMaal: number; // mål for point på en uge
 };
 
 // En kompakt status-stribe, der klæber fast øverst på "Hjem"-skærmen.
-// Den samler det vigtigste: titel + level + streak, point-status,
-// dagens fremskridt, og hvad man er tæt på. Alt uden at scrolle.
+// Den samler det vigtigste: titel + level + uge-streak, point-status,
+// og hvor langt man er mod ugens mål. Alt uden at scrolle.
 export function StatusStribe({
   titel,
   level,
   samledePoint,
   pointTilNaeste,
-  streak,
-  gjortIDag,
-  taerskel,
-  naesteMaal,
+  ugeStreak,
+  denneUgesPoint,
+  ugeMaal,
 }: Props) {
-  const groenIDag = gjortIDag >= taerskel;
-  const procent = Math.min(100, (gjortIDag / taerskel) * 100);
+  const maalNaaet = ugeMaal > 0 && denneUgesPoint >= ugeMaal;
+  const procent =
+    ugeMaal > 0 ? Math.min(100, (denneUgesPoint / ugeMaal) * 100) : 0;
+  // "Du er tæt på"-tekst: point til målet, eller uger til næste stime-milepæl.
+  const maalTekst = naesteUgeMaal(denneUgesPoint, ugeMaal, ugeStreak);
 
   return (
     <div className="flex flex-col gap-2 rounded-xl border border-slate-700 bg-slate-800 p-3 shadow-md shadow-slate-950/40">
-      {/* Linje 1: titel + level til venstre, streak til højre. */}
+      {/* Linje 1: titel + level til venstre, uge-streak til højre. */}
       <div className="flex items-center justify-between gap-2">
         <span className="flex min-w-0 items-center gap-2">
           {/* Billede hvis titlen har et, ellers emojien. */}
@@ -47,8 +49,12 @@ export function StatusStribe({
           </span>
           <span className="flex-none text-xs text-slate-500">Lvl {level}</span>
         </span>
+        {/* Uge-streak: uger i træk uge-målet er nået. */}
         <span className="flex flex-none items-center gap-1 font-semibold text-orange-400">
-          🔥 {streak}
+          🔥 {ugeStreak}
+          <span className="text-xs font-normal text-slate-500">
+            {ugeStreak === 1 ? "uge" : "uger"}
+          </span>
         </span>
       </div>
 
@@ -58,26 +64,28 @@ export function StatusStribe({
         {pointTilNaeste.toLocaleString("da-DK")} til Level {level + 1}
       </p>
 
-      {/* Linje 3: dagens fremskridt mod en grøn dag. */}
+      {/* Linje 3: ugens fremskridt mod uge-målet. */}
       <div className="h-2 w-full overflow-hidden rounded-full bg-slate-700">
         <div
           className={
             "h-full rounded-full transition-all " +
-            (groenIDag ? "bg-emerald-500" : "bg-amber-400")
+            (maalNaaet ? "bg-emerald-500" : "bg-amber-400")
           }
           style={{ width: `${procent}%` }}
         />
       </div>
 
-      {/* Linje 4: hvad man er tæt på. */}
+      {/* Linje 4: hvor langt man er fra ugens mål. */}
       <p
         className={
           "text-sm font-medium " +
-          (groenIDag ? "text-emerald-300" : "text-amber-300")
+          (maalNaaet ? "text-emerald-300" : "text-amber-300")
         }
       >
-        {groenIDag && <span className="text-emerald-400">✓ Grøn dag · </span>}
-        🎯 {naesteMaal}
+        {maalNaaet && (
+          <span className="text-emerald-400">✓ Uge-målet er nået · </span>
+        )}
+        🎯 {maalTekst}
       </p>
     </div>
   );

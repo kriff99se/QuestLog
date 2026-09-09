@@ -5,6 +5,7 @@ import {
   ugensDatoer,
   forrigeUgesMandag,
 } from "./datoer";
+import { ugensPoint } from "./point";
 
 // Her regner vi streaks ud. Ligesom point og level bliver de aldrig gemt -
 // de beregnes altid ud fra afkrydsningerne, så de ikke kan komme i utakt.
@@ -194,6 +195,88 @@ export function laengsteUgeStreak(
     mandag = ugensDatoer(dagenEfter(ugensDatoer(mandag)[6]))[0];
   }
   return bedste;
+}
+
+// --- Uge-mål-streak (point pr. uge) ---
+//
+// Dette er streaken for HELE ugen, ikke for én vane: hvor mange uger i
+// træk har du tjent mindst 'ugeMaal' point (mandag-søndag)? En produktiv
+// dag fylder en stor bid af ugen, så en stille dag bagefter ikke koster
+// noget. Samme "denne uge er i gang"-regel som de andre streaks, men
+// intet skjold - en uge er allerede en rummelig enhed.
+
+// Uger i træk hvor du har nået uge-målet i point.
+export function ugeMaalStreak(
+  vaner: Vane[],
+  afkrydsninger: Afkrydsninger,
+  ugeMaal: number,
+  iDag: string,
+): number {
+  if (ugeMaal <= 0) return 0;
+
+  let mandag = ugensDatoer(iDag)[0];
+
+  // Denne uge ikke i mål endnu? Så begynder vi i ugen før.
+  if (ugensPoint(vaner, afkrydsninger, mandag) < ugeMaal) {
+    mandag = forrigeUgesMandag(mandag);
+  }
+
+  let uger = 0;
+  while (ugensPoint(vaner, afkrydsninger, mandag) >= ugeMaal) {
+    uger += 1;
+    mandag = forrigeUgesMandag(mandag);
+  }
+  return uger;
+}
+
+// Den længste uge-mål-streak nogensinde - et rekord, der aldrig kan mistes.
+export function laengsteUgeMaalStreak(
+  vaner: Vane[],
+  afkrydsninger: Afkrydsninger,
+  ugeMaal: number,
+  iDag: string,
+): number {
+  if (ugeMaal <= 0) return 0;
+
+  const datoer = Object.keys(afkrydsninger).sort();
+  if (datoer.length === 0) return 0;
+
+  let mandag = ugensDatoer(datoer[0])[0];
+  const sisteMandag = ugensDatoer(iDag)[0];
+
+  let bedste = 0;
+  let stribe = 0;
+  while (mandag <= sisteMandag) {
+    if (ugensPoint(vaner, afkrydsninger, mandag) >= ugeMaal) {
+      stribe += 1;
+      if (stribe > bedste) bedste = stribe;
+    } else {
+      stribe = 0;
+    }
+    // Gå til mandagen i ugen efter.
+    mandag = ugensDatoer(dagenEfter(ugensDatoer(mandag)[6]))[0];
+  }
+  return bedste;
+}
+
+// "Du er tæt på"-tekst til uge-målet: enten hvor få point der mangler,
+// eller hvor få uger der er til næste stime-milepæl.
+const UGE_MILEPAELE = [2, 4, 8, 13, 26, 52];
+
+export function naesteUgeMaal(
+  denneUgesPoint: number,
+  ugeMaal: number,
+  ugeStreak: number,
+): string {
+  if (ugeMaal > 0 && denneUgesPoint < ugeMaal) {
+    const mangler = ugeMaal - denneUgesPoint;
+    return `${mangler} point til uge-målet`;
+  }
+  const naeste =
+    UGE_MILEPAELE.find((m) => m > ugeStreak) ??
+    Math.ceil((ugeStreak + 1) / 26) * 26;
+  const til = naeste - ugeStreak;
+  return `${til} ${til === 1 ? "uge" : "uger"} til en ${naeste}-ugers stime`;
 }
 
 // Runde streak-tal, det er sjovt at ramme.

@@ -19,9 +19,10 @@ import {
   erGroenDag,
   antalDageVaneGjort,
   laengsteStreak,
-  naesteMaal,
   gjortIUge,
   ugeStreak,
+  ugeMaalStreak,
+  laengsteUgeMaalStreak,
 } from "./streaks";
 import { StreakBanner } from "./StreakBanner";
 import { StatusStribe } from "./StatusStribe";
@@ -160,10 +161,6 @@ export default function App() {
   // Point tjent i denne uge (mandag-søndag) - vises på "Denne uge"-kortet.
   const denneUgesPoint = ugensPoint(vaner, afkrydsninger, dato);
 
-  // Hvor mange af vanerne er klaret den valgte dag? (Uge-vaner tæller med
-  // her - krydser man sauna af i dag, hjælper det dagens grønne dag.)
-  const antalGjort = vaner.filter((vane) => dagensAfkrydsninger[vane.id]).length;
-
   // Tærsklen vi regner med. Hvis den gemte værdi er blevet for høj (fx fordi
   // vaner er slettet eller lavet om til uge-vaner), klemmer vi den ned, så
   // en grøn dag stadig er mulig.
@@ -177,11 +174,20 @@ export default function App() {
   const titel = findTitel(levelInfo.level);
 
   // Den samlede dags-streak (grønne dage i træk) + den længste nogensinde.
+  // Bruges nu kun af trofæ-tjekkene - selve streaken, brugeren ser, er
+  // uge-mål-streaken nedenfor.
   const dagsStreak = samletStreak(vaner, afkrydsninger, dato, taerskel);
   const rekordStreak = laengsteStreak(vaner, afkrydsninger, dato, taerskel);
 
-  // Den korte "du er tæt på"-tekst til status-stribjen.
-  const maalTekst = naesteMaal(dagsStreak.dage, antalGjort, taerskel);
+  // Uge-mål-streaken: uger i træk hvor uge-målet i point er nået.
+  // Det er den, der vises øverst og på "Denne uge"-kortet.
+  const ugeStreakTal = ugeMaalStreak(vaner, afkrydsninger, ugeMaal, dato);
+  const rekordUgeStreak = laengsteUgeMaalStreak(
+    vaner,
+    afkrydsninger,
+    ugeMaal,
+    dato,
+  );
 
   // Alt hvad trofæ-tjekkene skal bruge, samlet ét sted.
   const trofaeData: TrofaeData = {
@@ -339,10 +345,9 @@ export default function App() {
                 level={levelInfo.level}
                 samledePoint={samledePoint}
                 pointTilNaeste={levelInfo.pointTilNaeste}
-                streak={dagsStreak.dage}
-                gjortIDag={antalGjort}
-                taerskel={taerskel}
-                naesteMaal={maalTekst}
+                ugeStreak={ugeStreakTal}
+                denneUgesPoint={denneUgesPoint}
+                ugeMaal={ugeMaal}
               />
 
               {flyvendePoint && (
@@ -383,9 +388,8 @@ export default function App() {
 
             {/* Ugen længere nede - resten står i stribjen øverst. */}
             <StreakBanner
-              streak={dagsStreak.dage}
-              skjoldBrugt={dagsStreak.skjoldBrugt}
-              rekord={rekordStreak}
+              streak={ugeStreakTal}
+              rekord={rekordUgeStreak}
               taerskel={taerskel}
               antalVaner={antalDaglige}
               ugensDage={ugensDage}
